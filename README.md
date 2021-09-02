@@ -17,7 +17,8 @@ cd paho.mqtt.python
 python setup.py install
 ```
 - The serial number of your Envoy. Can be obtained by browsing to "http://envoy.local"
-- The installer password for your envoy. To obtain, run the `passwordCalc.py` script using the Envoys serial number
+- The installer password for your envoy. To obtain, run the `passwordCalc.py` script using the Envoys serial number after first editing the file and inserting your serial number. Don't change the `userName` - it must be installer
+    - This program courtesy of "https://github.com/sarnau/EnphaseEnergy"
 - A mqtt broker - this can be external or use the `Mosquitto broker` from the Home Assistant Add-on store
     - If you use the add-on, create a Home Assistant user/password for mqtt as described in the `Mosquitto broker` installation instructions
 ## Install
