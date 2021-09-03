@@ -226,4 +226,69 @@ sensor:
     device_class: voltage
 #
 ```
+## Real time power display using Power Wheel Card
 
+Here's the code if you'd like real-time visualisations of your power usage like this:
+
+<img src="images/Power-wheel-card.jpeg">
+
+Power Wheel card:
+
+```yaml
+active_arrow_color: '#FF0000'
+color_icons: true
+consuming_color: '#FF0000'
+grid_power_consumption_entity: sensor.importing
+grid_power_production_entity: sensor.exporting
+home_icon: mdi:home-outline
+icon_height: mdi:18px
+producing_colour: '#00FF00'
+solar_icon: mdi:solar-power
+solar_power_entity: sensor.solarpower
+title_power: ' '
+type: custom:power-wheel-card
+```
+configuration.yaml:
+
+```yaml
+sensor:
+  
+  #
+  # These ones are for Envoy via mqtt
+  #
+  - platform: mqtt
+    state_topic: "/envoy/json"
+    name: "mqtt_production"
+    qos: 0
+    unit_of_measurement: "W"
+    value_template: '{% if is_state("sun.sun", "below_horizon")%}0{%else%}{{ value_json["production"]["ph-a"]["p"]  | int }}{%endif%}'
+    state_class: measurement
+    device_class: power
+
+  - platform: mqtt
+    state_topic: "/envoy/json"
+    value_template: '{{ value_json["total-consumption"]["ph-a"]["p"] }}'
+    name: "mqtt_consumption"
+    qos: 0
+    unit_of_measurement: "W"
+    state_class: measurement
+    device_class: power
+
+  - platform: template
+    sensors:
+      exporting:
+        friendly_name: "Current MQTT Energy Exporting"
+        value_template: "{{ [0, (states('sensor.mqtt_production') | int - states('sensor.mqtt_consumption') | int)] | max }}"
+        unit_of_measurement: "W"
+        icon_template: mdi:flash
+      importing:
+        friendly_name: "Current MQTT Energy Importing"
+        value_template: "{{ [0, (states('sensor.mqtt_consumption') | int - states('sensor.mqtt_production') | int)] | max }}"
+        unit_of_measurement: "W"
+        icon_template: mdi:flash
+      solarpower:
+        friendly_name: "Solar MQTT Power"
+        value_template: "{{ states('sensor.mqtt_production')}}"
+        unit_of_measurement: "W"
+        icon_template: mdi:flash
+```
