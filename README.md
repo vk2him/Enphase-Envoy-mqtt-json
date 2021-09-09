@@ -57,6 +57,53 @@ To stop it running use
 launchctl unload ~/Library/LaunchAgents/envoy.plist
 ```
 
+## Run as systemd service on Ubuntu 
+
+Take note of where your python file has been saved as you need to point to it in the service file
+
+```
+/path/to/envoy_to_mqtt_json.py
+```
+
+Using a bash terminal
+
+```
+cd /etc/systemd/system
+```
+
+Create a file with your favourite file editor called envoy.service and add the following
+
+```
+[Unit]
+Description=Envoy stream to MQTT
+
+[Service]
+Type=simple
+ExecStart=/path/to/envoy_to_mqtt_json.py
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Save and close the file then run the following commands
+
+```
+sudo systemctl daemon-reload
+```
+```
+sudo systemctl enable envoy.service
+```
+```
+sudo systemctl start envoy.service
+```
+You can check the status of the service at any time by the command
+```
+systemctl status envoy
+```
+
+Note: this should work for any linux distribution that uses systemd services, but the instructions and locations may vary slightly.
+
 ## Example output
 The resulting mqtt topic should look like this example:
 ```
