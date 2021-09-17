@@ -34,16 +34,28 @@ Run it as a daemon - an example for `macOs` is to create a `~/Library/LaunchAgen
 
 ```
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC -//Apple Computer//DTD PLIST 1.0//EN http://www.apple.com/DTDs/PropertyList-1.0.dtd >
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
-  <dict>
-    <key>Label</key>
-    <string>envoy</string>
-    <key>Program</key>
-    <string>/path/to/python3 /path/to/envoy_to_mqtt_json.py</string>
-    <key>KeepAlive</key>
-    <true/>
-  </dict>
+<dict>
+	<key>Disabled</key>
+	<false/>
+	<key>EnvironmentVariables</key>
+	<dict>
+		<key>PATH</key>
+		<string>/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Library/Apple/usr/bin:/usr/local/sbin</string>
+	</dict>
+	<key>KeepAlive</key>
+	<true/>
+	<key>Label</key>
+	<string>envoy</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>/path/to/python3</string>
+		<string>/path/to/envoy_to_mqtt_json.py</string>
+	</array>
+	<key>RunAtLoad</key>
+	<true/>
+</dict>
 </plist>
 ```
 Then use `launchctl` to load the plist from a terminal:
