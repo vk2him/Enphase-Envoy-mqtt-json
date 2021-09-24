@@ -351,3 +351,7 @@ sensor:
         unit_of_measurement: "W"
         icon_template: mdi:flash
 ```
+## Donation
+If this project helps you, you can give me a cup of coffee<br/>
+[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/vk2him)
+<br/><br/>
