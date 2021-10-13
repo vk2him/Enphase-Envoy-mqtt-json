@@ -88,10 +88,43 @@ Create a file with your favourite file editor called envoy.service and add the f
 ```
 [Unit]
 Description=Envoy stream to MQTT
+Documentation=https://github.com/vk2him/Enphase-Envoy-mqtt-json
 
 [Service]
 Type=simple
-ExecStart=/path/to/envoy_to_mqtt_json.py
+ExecStart=/path/to/python3 /path/to/envoy_to_mqtt_json.py
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+```
+## Run as systemd service on Linux Mint 
+
+Take note of where your python file has been saved as you need to point to it in the service file
+
+```
+/path/to/envoy_to_mqtt_json.py
+```
+
+Using a bash terminal
+
+```
+cd /etc/systemd/system
+```
+
+Create a file with your favourite file editor called envoy.service and add the following (alter User/Group to suit)
+
+```
+[Unit]
+Description=Envoy stream to MQTT
+Documentation=https://github.com/vk2him/Enphase-Envoy-mqtt-json
+
+[Service]
+Type=simple
+User=youruserid
+Group=yourgroup
+ExecStart=/path/to/python3 /path/to/envoy_to_mqtt_json.py
+Environment=PYTHONUNBUFFERED=true
 Restart=on-failure
 
 [Install]
