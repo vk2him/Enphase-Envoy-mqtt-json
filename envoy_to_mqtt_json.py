@@ -2,7 +2,8 @@
 # 
 # This version reads json from Envoy then publishes the json to mqtt broker
 #
-# Version 1.0 1st September 2021
+# Version 1.0 1st September 2021 - Initial release
+# Version 1.1 18th October 2021 - Include date/time to output for checking 
 #
 # Ian Mills
 # vk2him@gmail.com
@@ -13,11 +14,22 @@ import requests
 import threading
 from requests.auth import HTTPDigestAuth
 import pprint
+from datetime import datetime
+
 
 import paho.mqtt.client as mqtt
 client = mqtt.Client()
 
 pp = pprint.PrettyPrinter()
+
+##
+
+now = datetime.now()
+dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+#print ("date =", dt_string)
+
+#
+
 
 #
 ##### Settings Start here
@@ -30,17 +42,17 @@ pp = pprint.PrettyPrinter()
 # 
 # Note - if issues connecting, use FQDN for broker IP instead of hassio.local
 #
-MQTT_HOST = "hassio.local"
+MQTT_HOST = "192.168.1.74"
 MQTT_PORT = "1883"
 MQTT_TOPIC = "/envoy/json"  # Note - if you change this topic, you'll need to also change the value_templates in configuration.yaml
-MQTT_USER = "secret"
-MQTT_PASSWORD = "secret"
+MQTT_USER = "vk2him"
+MQTT_PASSWORD = "beachbabe"
 #
 # envoy-s host IP
 #  ** Note - use FQDN and not envoy.local if issues connecting
-host = 'envoy.local'
+host = '192.168.1.84'
 # envoy installer password - generate from seperate python script
-password = 'secret'
+password = '2j2892dc'
 #
 ####  End Settings - no changes after this line
 #
@@ -76,23 +88,23 @@ def on_connect(client, userdata, flags, rc):
     5: Refused . not authorised (MQTT v3.1 broker only)
     """
     if rc == 0:
-        print("Connected to %s:%s" % (MQTT_HOST, MQTT_PORT))
+        print(dt_string," Connected to %s:%s" % (MQTT_HOST, MQTT_PORT))
         # Subscribe to our incoming topic
         client.subscribe(MQTT_TOPIC)
         print("{0}".format(MQTT_TOPIC))
 
     elif rc == 1:
-        print("Connection refused - unacceptable protocol version")
+        print(dt_string," Connection refused - unacceptable protocol version")
     elif rc == 2:
-        print("Connection refused - identifier rejected")
+        print(dt_string," Connection refused - identifier rejected")
     elif rc == 3:
-        print("Connection refused - server unavailable")
+        print(dt_string," Connection refused - server unavailable")
     elif rc == 4:
-        print("Connection refused - bad user name or password")
+        print(dt_string," Connection refused - bad user name or password")
     elif rc == 5:
-        print("Connection refused - not authorised")
+        print(dt_string," Connection refused - not authorised")
     else:
-        print("Connection failed - result code %d" % (rc))
+        print(dt_string," Connection failed - result code %d" % (rc))
 
 def on_publish(client, userdata, mid) :
     print("mid: {0}".format(str(mid)))
@@ -152,7 +164,7 @@ def scrape_stream():
                     client.publish(topic= MQTT_TOPIC , payload= json_string, qos=0 )
 
         except requests.exceptions.RequestException as e:
-            print('Exception fetching stream data: %s' % e)
+            print(dt_string, ' Exception fetching stream data: %s' % e)
 
 def main():
     stream_thread = threading.Thread(target=scrape_stream)
