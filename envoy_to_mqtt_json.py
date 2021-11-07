@@ -46,13 +46,13 @@ MQTT_HOST = "hassio.local"
 MQTT_PORT = "1883"
 MQTT_TOPIC = "/envoy/json"  # Note - if you change this topic, you'll need to also change the value_templates in configuration.yaml
 MQTT_USER = "mqtt-user"
-MQTT_PASSWORD = "mqtt-password"
+MQTT_PASSWORD = "secret"
 #
 # envoy-s host IP
 #  ** Note - use FQDN and not envoy.local if issues connecting
 host = 'envoy.local'
 # envoy installer password - generate from seperate python script
-password = 'envoy-user-password'
+password = 'secret
 #
 ####  End Settings - no changes after this line
 #
