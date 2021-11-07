@@ -42,17 +42,17 @@ dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
 # 
 # Note - if issues connecting, use FQDN for broker IP instead of hassio.local
 #
-MQTT_HOST = "192.168.1.74"
+MQTT_HOST = "hassio.local"
 MQTT_PORT = "1883"
 MQTT_TOPIC = "/envoy/json"  # Note - if you change this topic, you'll need to also change the value_templates in configuration.yaml
-MQTT_USER = "vk2him"
-MQTT_PASSWORD = "beachbabe"
+MQTT_USER = "mqtt-user"
+MQTT_PASSWORD = "mqtt-password"
 #
 # envoy-s host IP
 #  ** Note - use FQDN and not envoy.local if issues connecting
-host = '192.168.1.84'
+host = 'envoy.local'
 # envoy installer password - generate from seperate python script
-password = '2j2892dc'
+password = 'envoy-user-password'
 #
 ####  End Settings - no changes after this line
 #
