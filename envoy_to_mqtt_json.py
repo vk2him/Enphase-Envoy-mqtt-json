@@ -3,7 +3,7 @@
 # This version reads json from Envoy then publishes the json to mqtt broker
 #
 # Version 1.0 1st September 2021 - Initial release
-# Version 1.1 18th October 2021 - Include date/time to output for checking 
+# Version 1.1 7th November 2021 - Include date/time to output for checking 
 #
 # Ian Mills
 # vk2him@gmail.com
