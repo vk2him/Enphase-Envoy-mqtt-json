@@ -5,7 +5,8 @@ A Python script that takes a real time stream from Enphase Envoy and publishes t
 ## Requirements
 
 - An Enphase Envoy. Note - Tested with Envoy-S-Metered-EU running 5.x.x firmware. 
-- It will not work on 7.x.x firmware as the authentication has changed and the password generator will not work.
+- **It will not work on 7.x.x firmware as the authentication has changed and the password generator will not work.**
+- **Note - You can contact Enphase Support and request they downgrade your firmware to 5.x.x - I have done this as my system was upgraded to 7.x.x**
 - A system running python3 with the `paho.mqtt` python library
 - The normal way to install `paho.mqtt` is 
 ```
