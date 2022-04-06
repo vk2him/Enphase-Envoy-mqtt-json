@@ -1,0 +1,10 @@
+name: "envoy_to_mqtt_json"
+description: "Converts Envoy Json to mqtt"
+version: "1.0.2"
+slug: "envoy_to_mqtt_json"
+arch:
+  - aarch64
+  - amd64
+  - armhf
+  - armv7
+  - i386

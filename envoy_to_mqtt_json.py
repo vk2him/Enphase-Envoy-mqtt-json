@@ -4,6 +4,7 @@
 #
 # Version 1.0 1st September 2021 - Initial release
 # Version 1.1 7th November 2021 - Include date/time to output for checking 
+# Version 1.2 6th April 2022 - tidy up some comments
 #
 # Ian Mills
 # vk2him@gmail.com
@@ -29,30 +30,22 @@ dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
 #print ("date =", dt_string)
 
 #
-
-
-#
 ##### Settings Start here
 #
-# I use the Home Assistant Mosquitto broker add-on.
-#
-# As described in the Documentation for the Mosquitto broker add-on,
-# the MQTT user/password are the user setup for mqtt.
-# If you use an extrenal broker, use those details instead
+# I use the Home Assistant Mosquito broker add-on but you can use an external one if needed
 # 
-# Note - if issues connecting, use FQDN for broker IP instead of hassio.local
-#
-MQTT_HOST = "hassio.local"
+
+MQTT_HOST = "hassio.local"  # Note - if issues connecting, use FQDN for broker IP instead of hassio.local
 MQTT_PORT = "1883"
 MQTT_TOPIC = "/envoy/json"  # Note - if you change this topic, you'll need to also change the value_templates in configuration.yaml
-MQTT_USER = "mqtt-user"
-MQTT_PASSWORD = "secret"
+MQTT_USER = "mqtt-user"     # As described in the Documentation for the HA Mosquito broker add-on, the MQTT user/password are the user setup for mqtt
+MQTT_PASSWORD = "secret"    # If you use an extrenal broker, use those details instead
 #
-# envoy-s host IP
-#  ** Note - use FQDN and not envoy.local if issues connecting
-host = 'envoy.local'
-# envoy installer password - generate from seperate python script
-password = 'secret
+# 
+#  
+host = 'envoy.local'  # ** Enter envoy-s IP. Note - use FQDN and not envoy.local if issues connecting
+# 
+password = 'secret'   # This is the envoy's installer password - generate the password from the separate python script
 #
 ####  End Settings - no changes after this line
 #
