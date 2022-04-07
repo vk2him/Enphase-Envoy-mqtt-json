@@ -43,7 +43,7 @@ MQTT_PASSWORD = "secret"    # If you use an extrenal broker, use those details i
 #
 # 
 #  
-host = '1envoy.local'  # ** Enter envoy-s IP. Note - use FQDN and not envoy.local if issues connecting
+host = 'envoy.local'  # ** Enter envoy-s IP. Note - use FQDN and not envoy.local if issues connecting
 # 
 password = 'secret'   # This is the envoy's installer password - generate the password from the separate python script
 #
