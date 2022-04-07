@@ -35,17 +35,17 @@ dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
 # I use the Home Assistant Mosquito broker add-on but you can use an external one if needed
 # 
 
-MQTT_HOST = "hassio.local"  # Note - if issues connecting, use FQDN for broker IP instead of hassio.local
+MQTT_HOST = "192.168.1.74"  # Note - if issues connecting, use FQDN for broker IP instead of hassio.local
 MQTT_PORT = "1883"
 MQTT_TOPIC = "/envoy/json"  # Note - if you change this topic, you'll need to also change the value_templates in configuration.yaml
-MQTT_USER = "mqtt-user"     # As described in the Documentation for the HA Mosquito broker add-on, the MQTT user/password are the user setup for mqtt
-MQTT_PASSWORD = "secret"    # If you use an extrenal broker, use those details instead
+MQTT_USER = "vk2him"     # As described in the Documentation for the HA Mosquito broker add-on, the MQTT user/password are the user setup for mqtt
+MQTT_PASSWORD = "beachbabe"    # If you use an extrenal broker, use those details instead
 #
 # 
 #  
-host = 'envoy.local'  # ** Enter envoy-s IP. Note - use FQDN and not envoy.local if issues connecting
+host = '192.168.1.84'  # ** Enter envoy-s IP. Note - use FQDN and not envoy.local if issues connecting
 # 
-password = 'secret'   # This is the envoy's installer password - generate the password from the separate python script
+password = 'fCfkda57'   # This is the envoy's installer password - generate the password from the separate python script
 #
 ####  End Settings - no changes after this line
 #
