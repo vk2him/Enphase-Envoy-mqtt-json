@@ -5,6 +5,7 @@
 # Version 1.0 1st September 2021 - Initial release
 # Version 1.1 7th November 2021 - Include date/time to output for checking 
 # Version 1.2 6th April 2022 - tidy up some comments
+# Version 1.3 7th April 2022 - converted to work as a Home Assistant Addon
 #
 # Ian Mills
 # vk2him@gmail.com
@@ -23,6 +24,12 @@ client = mqtt.Client()
 
 pp = pprint.PrettyPrinter()
 
+import json
+
+with open("/data/options.json", "r") as f:
+    option_dict = json.load(f)
+# print(option_dict["x"])
+
 ##
 
 now = datetime.now()
@@ -35,17 +42,17 @@ dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
 # I use the Home Assistant Mosquito broker add-on but you can use an external one if needed
 # 
 
-MQTT_HOST = "hassio.local"  # Note - if issues connecting, use FQDN for broker IP instead of hassio.local
+MQTT_HOST = option_dict["MQTT_HOST"]  # Note - if issues connecting, use FQDN for broker IP instead of hassio.local
 MQTT_PORT = "1883"
 MQTT_TOPIC = "/envoy/json"  # Note - if you change this topic, you'll need to also change the value_templates in configuration.yaml
-MQTT_USER = "mqtt-user"     # As described in the Documentation for the HA Mosquito broker add-on, the MQTT user/password are the user setup for mqtt
-MQTT_PASSWORD = "secret"    # If you use an extrenal broker, use those details instead
+MQTT_USER = option_dict["MQTT_USER"]     # As described in the Documentation for the HA Mosquito broker add-on, the MQTT user/password are the user setup for mqtt
+MQTT_PASSWORD = option_dict["MQTT_PASSWORD"]    # If you use an external broker, use those details instead
 #
 # 
 #  
-host = 'envoy.local'  # ** Enter envoy-s IP. Note - use FQDN and not envoy.local if issues connecting
+envoy_host = option_dict["envoy_host"]  # ** Enter envoy-s IP. Note - use FQDN and not envoy.local if issues connecting
 # 
-password = 'secret'   # This is the envoy's installer password - generate the password from the separate python script
+envoy_password = option_dict["envoy_password"]   # This is the envoy's installer password - generate the password from the separate python script
 #
 ####  End Settings - no changes after this line
 #
@@ -53,7 +60,7 @@ password = 'secret'   # This is the envoy's installer password - generate the pa
 
 
 user = 'installer'
-auth = HTTPDigestAuth(user, password)
+auth = HTTPDigestAuth(user, envoy_password)
 marker = b'data: '
 
 # The callback for when the client receives a CONNACK response from the server.
@@ -146,7 +153,7 @@ data: {
 def scrape_stream():
     while True:
         try:
-            url = 'http://%s/stream/meter' % host
+            url = 'http://%s/stream/meter' % envoy_host
             stream = requests.get(url, auth=auth, stream=True, timeout=5)
             for line in stream.iter_lines():
                 if line.startswith(marker):

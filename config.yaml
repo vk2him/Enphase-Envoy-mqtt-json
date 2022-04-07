@@ -1,6 +1,6 @@
-name: "envoy_to_mqtt_json"
+name: "Stream mqtt from Enphase Envoy"
 description: "Converts Envoy Json to mqtt"
-version: "1.0.2"
+version: "1.0.1"
 slug: "envoy_to_mqtt_json"
 arch:
   - aarch64
@@ -8,3 +8,17 @@ arch:
   - armhf
   - armv7
   - i386
+options:
+
+  MQTT_HOST: ip.address.of.homeasistant
+  MQTT_USER: mqtt.user
+  MQTT_PASSWORD: mqtt.password
+  envoy_host: envoy.local
+  envoy_password: secret
+
+schema:
+  MQTT_HOST: str
+  MQTT_USER: str
+  MQTT_PASSWORD: str
+  envoy_host: str
+  envoy_password: str  

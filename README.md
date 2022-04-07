@@ -2,56 +2,43 @@
 
 A Python script that takes a real time json stream from Enphase Envoy and publishes to a mqtt broker. This can then be used within Home Assistant or for other applications. The data updates at least once per second with negligible load on the Envoy.
 
-**Note - It will not work on 7.x.x firmware as the authentication has changed and the password generator will not work.**
+**Note - It will not work on 7.x.x firmware as the authentication method has changed.**
 
-**If you have 7.x.x, you can contact Enphase Support and request they downgrade or keep you permanently on firmware 5.x.x .**
+**If you have 7.x.x, you can contact Enphase Support and request they downgrade or keep your Envoy permanently on firmware 5.x.x .**
 
 # Requirements
 
 - An Enphase Envoy running 5.x.x firmware.
-- A system running python3 with the modules `paho.mqtt` , `requests` and `pprint`
 - The serial number of your Envoy which can be obtained by browsing to "http://envoy.local"
-- The installer password for your envoy. To obtain, run the `passwordCalc.py` script using the Envoys serial number after first editing `passwordCalc.py` and inserting your serial number. Don't change the `userName` - it must be installer
+- The installer password for your envoy. 
+  - To obtain, run the included `passwordCalc.py` python script using your Envoys serial number after first editing `passwordCalc.py` and inserting your serial number. Don't change the `userName` - it must be installer
     - The serial number program is courtesy of "https://github.com/sarnau/EnphaseEnergy"
-- A mqtt broker - this can be external or use the `Mosquitto broker` from the Home Assistant Add-on store
+- A mqtt broker that is already running - this can be external or use the `Mosquitto broker` from the Home Assistant Add-on store
     - If you use the HA broker add-on, create a Home Assistant user/password for mqtt as described in the `Mosquitto broker` installation instructions
-     
 
-# Installation Method 1 - as a Docker container within Home Assistant. ###
+# Installation Method 1 - as a Home Assistant addon. ###
 
-We will be manually installing the script into Home Assistant as a "Local add-on" and these are stored in a shared folder called "addons" (as opposed to "Official add-ons which are available from the Add-on store).
+1) Add this Repository to your Home Assistant by clicking this button  
 
-We will be using Samba share add-on from the Official add-ons page, so please install this first if not already. 
-  
-   https://my.home-assistant.io/redirect/supervisor_addon/?addon=core_samba
+[![Open your Home Assistant instance and show the add add-on repository dialog with a specific repository URL pre-filled.](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https://github.com/vk2him/Enphase-Envoy-mqtt-json)
 
-__Note:__ - Ensure Samba share is working so files can be copied to your `addons` directory
+![Supports aarch64 Architecture][aarch64-shield]
+![Supports amd64 Architecture][amd64-shield]
+![Supports armhf Architecture][armhf-shield]
+![Supports armv7 Architecture][armv7-shield]
+![Supports i386 Architecture][i386-shield]
 
+[aarch64-shield]: https://img.shields.io/badge/aarch64-yes-green.svg
+[amd64-shield]: https://img.shields.io/badge/amd64-yes-green.svg
+[armhf-shield]: https://img.shields.io/badge/armhf-yes-green.svg
+[armv7-shield]: https://img.shields.io/badge/armv7-yes-green.svg
+[i386-shield]: https://img.shields.io/badge/i386-yes-green.svg
 
-
-__HA Installation Step 1__
-
-1) Copy all the files from this repo to a new folder on your local PC. Remember the name of this folder 
-   - Alternatively you could do this via `git clone https://github.com/vk2him/Enphase-Envoy-mqtt-json` 
-2) Configure settings in `envoy_to_mqtt_json.py`
-3) Within Home Assistant, create a directory inside ```addons``` that will store the files from step 1)
-    - I use the name "Enphase-Envoy-mqtt-json"
-4) Using the Samba share, Copy files from your local PC folder to the Home Assistant ```addons/Enphase-Envoy-mqtt-json``` directory from step 3)
-5) Open the Home Assistant frontend
-    - Go to "Configuration"
-    - Click on "Add-ons, backups & Supervisor"
-    - Click "add-on store" in the bottom right corner.
-
-      https://my.home-assistant.io/redirect/supervisor_store/
-
-    - On the top right overflow menu, click the "Check for updates" button
-    - You should now see a new section at the top of the store called "Local add-ons" that lists this add-on
-      <img src="images/addon.jpg">
-    - Click on the add-on to go to the add-on details page.
-    - Click to Install the add-on
-    - Start the add-on
-    - Optionally slide switch to enable Watchdog and/or Auto update
-    - Click on the "Logs" tab, and refresh the logs, you should now see output similar to this:
+2) After adding the Repository, you'll see a new section titled "vk2him's Enphase add-on repository"
+3) Click to install "Stream mqtt from Enphase Envoy"
+4) After it's installed, click on "Configuration" and enter required settings __Note:__ "MQTT_HOST" will be the IP address for your mqtt broker, so this will probably be the IP address of your Home Assistant
+5) Optionally slide switch to enable Watchdog and/or Auto update
+6) Click on the "Logs" tab, you should now see output similar to this:
 
             [s6-init] making user provided files available at /var/run/s6/etc...exited 0.
             [s6-init] ensuring user provided files have correct perms...exited 0.
@@ -63,13 +50,7 @@ __HA Installation Step 1__
             [services.d] done.
             06/04/2022 16:52:14  Connected to 192.168.1.74:1883
             /envoy/json
-6) mqtt steam will now be sent to your broker
-
-  __If you have problems with the above, follow this guide__
-
-   https://developers.home-assistant.io/docs/add-ons/tutorial/
-
-7) Configure sensors etc to use the mqtt stream
+7) mqtt steam will now be sent to your broker
 
 ## `configuration.yaml` configuration examples
 ```yaml
@@ -196,7 +177,7 @@ sensor:
 
 - Copy to you Linux host in the directory of your choosing 
 `git clone https://github.com/vk2him/Enphase-Envoy-mqtt-json`
-- Configure settings in `envoy_to_mqtt_json.py`
+- Configure settings in `/data/options.json`
 
 __Note:__
 
@@ -436,3 +417,4 @@ __Note:__ Data is provided for three phases - unused phases have values of `0.0`
 If this project helps you, you can give me a cup of coffee<br/>
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/vk2him)
 <br/><br/>
+

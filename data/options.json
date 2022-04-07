@@ -1,0 +1,7 @@
+{
+    "MQTT_HOST": "ip.address.of.homeasistant",
+    "MQTT_USER": "mqtt.user",
+    "MQTT_PASSWORD": "mqtt.password",
+    "envoy_host": "envoy.local",
+    "envoy_password": "envoy.password"
+  }
