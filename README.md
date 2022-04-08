@@ -110,7 +110,7 @@ value_template: '{{ value_json["production"]["ph-a"]["p"] | int + value_json["pr
 
 Here's the code if you'd like real-time visualisations of your power usage like this:
 
-<img src="Power-wheel-card.jpeg">
+<img src="https://www.theshackbythebeach.com/Power-wheel-card.jpeg">
 
 Power Wheel card:
 
