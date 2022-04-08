@@ -2,6 +2,7 @@
     "MQTT_HOST": "ip.address.of.homeasistant",
     "MQTT_USER": "mqtt.user",
     "MQTT_PASSWORD": "mqtt.password",
+    "MQTT_PORT": "1883",
     "envoy_host": "envoy.local",
     "envoy_password": "envoy.password"
   }
