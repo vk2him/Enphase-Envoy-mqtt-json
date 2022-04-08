@@ -21,6 +21,6 @@ schema:
   MQTT_HOST: str
   MQTT_USER: str
   MQTT_PASSWORD: str
-  MQTT_PORT: str
+  MQTT_PORT: int
   envoy_host: str
   envoy_password: str  
