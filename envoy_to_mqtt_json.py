@@ -17,6 +17,7 @@ import threading
 from requests.auth import HTTPDigestAuth
 import pprint
 from datetime import datetime
+import time
 
 
 import paho.mqtt.client as mqtt
@@ -128,6 +129,12 @@ client.on_disconnect = on_disconnect
 client.username_pw_set(MQTT_USER, MQTT_PASSWORD)
 
 client.connect(MQTT_HOST,int(MQTT_PORT), 30)
+
+# Add 10 second sleep to allow initialise
+
+time.sleep(10)
+
+print(dt_string," Connected to %s:%s" % (MQTT_HOST, MQTT_PORT))
 
 client.loop_start()
 
