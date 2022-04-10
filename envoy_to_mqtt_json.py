@@ -123,7 +123,7 @@ client.on_connect    = on_connect
 #client.on_publish    = on_publish
 client.on_disconnect = on_disconnect
 # Uncomment to enable debug messages
-client.on_log       = on_log
+#client.on_log       = on_log
 
 client.username_pw_set(MQTT_USER, MQTT_PASSWORD)
 
