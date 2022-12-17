@@ -1,4 +1,4 @@
 # https://developers.home-assistant.io/docs/add-ons/repository#repository-configuration
 name: Helder Fork of vk2him's Enphase add-on repository
-url: 'https://github.com/helderfmf/Enphase-Envoy-mqtt-json'
+url: 'https://github.com/helderfmf/Enphase-Envoy-mqtt-json/tree/helderfmf-freeds'
 maintainer: vk2him <vk2him@gmail.com>
