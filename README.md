@@ -62,7 +62,7 @@ A Python script that takes a real time json stream from Enphase Envoy and publis
 #
 sensor:
   - platform: mqtt
-    state_topic: "/envoy/json"
+    state_topic: "envoy/json"
     name: "mqtt_production"
     qos: 0
     unit_of_measurement: "W"
@@ -71,7 +71,7 @@ sensor:
     device_class: power
 
   - platform: mqtt
-    state_topic: "/envoy/json"
+    state_topic: "envoy/json"
     value_template: '{{ value_json["total-consumption"]["ph-a"]["p"] }}'
     name: "mqtt_consumption"
     qos: 0
@@ -80,7 +80,7 @@ sensor:
     device_class: power
 
   - platform: mqtt
-    state_topic: "/envoy/json"
+    state_topic: "envoy/json"
     name: "mqtt_power_factor"
     qos: 0
     unit_of_measurement: "%"
@@ -89,7 +89,7 @@ sensor:
     device_class: power_factor
 
   - platform: mqtt
-    state_topic: "/envoy/json"
+    state_topic: "envoy/json"
     name: "mqtt_voltage"
     qos: 0
     unit_of_measurement: "V"
@@ -139,7 +139,7 @@ sensor:
   # These ones are for Envoy via mqtt
   #
   - platform: mqtt
-    state_topic: "/envoy/json"
+    state_topic: "envoy/json"
     name: "mqtt_production"
     qos: 0
     unit_of_measurement: "W"
@@ -148,7 +148,7 @@ sensor:
     device_class: power
 
   - platform: mqtt
-    state_topic: "/envoy/json"
+    state_topic: "envoy/json"
     value_template: '{{ value_json["total-consumption"]["ph-a"]["p"] }}'
     name: "mqtt_consumption"
     qos: 0
