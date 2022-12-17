@@ -17,6 +17,7 @@ options:
   MQTT_PORT: 1883
   envoy_host: envoy.local
   envoy_password: secret
+  TOPIC_FREEDS: 1883
 
 schema:
   MQTT_HOST: str
@@ -25,3 +26,4 @@ schema:
   MQTT_PORT: int
   envoy_host: str
   envoy_password: str  
+  TOPIC_FREEDS: str
