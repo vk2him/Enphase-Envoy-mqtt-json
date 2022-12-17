@@ -5,4 +5,5 @@
     "MQTT_PORT": "1883",
     "envoy_host": "envoy.local",
     "envoy_password": "envoy.password"
+    "TOPIC_FREEDS": "Inverter/GridWatts"
   }
