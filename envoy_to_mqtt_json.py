@@ -48,6 +48,7 @@ MQTT_PORT = option_dict["MQTT_PORT"]
 MQTT_TOPIC = "envoy/json"  # Note - if you change this topic, you'll need to also change the value_templates in configuration.yaml
 MQTT_USER = option_dict["MQTT_USER"]     # As described in the Documentation for the HA Mosquito broker add-on, the MQTT user/password are the user setup for mqtt
 MQTT_PASSWORD = option_dict["MQTT_PASSWORD"]    # If you use an external broker, use those details instead
+MQTT_TOPIC_FREEDS = option_dict["TOPIC_FREEDS"] 
 #
 # 
 #  
@@ -167,8 +168,9 @@ def scrape_stream():
                     data = json.loads(line.replace(marker, b''))
                     json_string = json.dumps(data)
                     #pp.pprint(json_string)
-                                    
+                    json_string_freeds = data['net-consumption']['ph-a']['p']                
                     client.publish(topic= MQTT_TOPIC , payload= json_string, qos=0 )
+                    client.publish(topic= MQTT_TOPIC_FREEDS , payload= json_string_freeds, qos=0 )
 
         except requests.exceptions.RequestException as e:
             print(dt_string, ' Exception fetching stream data: %s' % e)
