@@ -22,7 +22,7 @@ A Python script that takes a real time json stream from Enphase Envoy and publis
 
 1) Add this Repository to your Home Assistant by clicking this button  
 
-[![Open your Home Assistant instance and show the add add-on repository dialog with a specific repository URL pre-filled.](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https://github.com/vk2him/Enphase-Envoy-mqtt-json)
+[![Open your Home Assistant instance and show the add add-on repository dialog with a specific repository URL pre-filled.](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https://github.com/helderfmf/Enphase-Envoy-mqtt-json/tree/helderfmf-freeds)
 
 ![Supports aarch64 Architecture][aarch64-shield]
 ![Supports amd64 Architecture][amd64-shield]
