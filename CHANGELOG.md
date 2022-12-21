@@ -9,3 +9,5 @@ v1.0.4      - 10th April 2022 - Added delay in start
 v1.0.5      - 12th April 2022 - Updated documentation url for online password generator
 
 v1.0.6      - 16th May 2022 - Updated to fix potential s6-overlay issue
+
+v1.0.7      - 22nd December 2022 - Updated Documentation for new mqtt integration method in configuration.yaml

@@ -58,44 +58,42 @@ A Python script that takes a real time json stream from Enphase Envoy and publis
 ```yaml
 # Example configuration.yaml entry
 #
-# Creates sensors with names such as sensor.mqtt_production
+# Creates sensors with names such as sensor.mqtt_production using the new mqtt integration method
 #
-sensor:
-  - platform: mqtt
-    state_topic: "/envoy/json"
-    name: "mqtt_production"
-    qos: 0
-    unit_of_measurement: "W"
-    value_template: '{% if is_state("sun.sun", "below_horizon")%}0{%else%}{{ value_json["production"]["ph-a"]["p"]  | int(0) }}{%endif%}'
-    state_class: measurement
-    device_class: power
 
-  - platform: mqtt
-    state_topic: "/envoy/json"
-    value_template: '{{ value_json["total-consumption"]["ph-a"]["p"] }}'
-    name: "mqtt_consumption"
-    qos: 0
-    unit_of_measurement: "W"
-    state_class: measurement
-    device_class: power
+mqtt:
+  sensor:
+    - name: "mqtt_production"
+      state_topic: "/envoy/json"
+      qos: 0
+      unit_of_measurement: "W"
+      value_template: '{% if is_state("sun.sun", "below_horizon")%}0{%else%}{{ value_json["production"]["ph-a"]["p"]  | float }}{%endif%}'
+      state_class: measurement
+      device_class: power
 
-  - platform: mqtt
-    state_topic: "/envoy/json"
-    name: "mqtt_power_factor"
-    qos: 0
-    unit_of_measurement: "%"
-    value_template: '{{ value_json["total-consumption"]["ph-a"]["pf"] }}'
-    state_class: measurement
-    device_class: power_factor
+    - name: "mqtt_consumption"
+      state_topic: "/envoy/json"
+      value_template: '{{ value_json["total-consumption"]["ph-a"]["p"] }}'
+      qos: 0
+      unit_of_measurement: "W"
+      state_class: measurement
+      device_class: power
 
-  - platform: mqtt
-    state_topic: "/envoy/json"
-    name: "mqtt_voltage"
-    qos: 0
-    unit_of_measurement: "V"
-    value_template: '{{ value_json["total-consumption"]["ph-a"]["v"] }}'
-    state_class: measurement
-    device_class: voltage
+    - name: "mqtt_power_factor"
+      state_topic: "/envoy/json"
+      qos: 0
+      unit_of_measurement: "%"
+      value_template: '{{ value_json["total-consumption"]["ph-a"]["pf"] }}'
+      state_class: measurement
+      device_class: power_factor
+
+    - name: "mqtt_voltage"
+      state_topic: "/envoy/json"
+      qos: 0
+      unit_of_measurement: "V"
+      value_template: '{{ value_json["total-consumption"]["ph-a"]["v"] }}'
+      state_class: measurement
+      device_class: voltage
 #
 ```
 
@@ -138,23 +136,6 @@ sensor:
   #
   # These ones are for Envoy via mqtt
   #
-  - platform: mqtt
-    state_topic: "/envoy/json"
-    name: "mqtt_production"
-    qos: 0
-    unit_of_measurement: "W"
-    value_template: '{% if is_state("sun.sun", "below_horizon")%}0{%else%}{{ value_json["production"]["ph-a"]["p"]  | int(0) }}{%endif%}'
-    state_class: measurement
-    device_class: power
-
-  - platform: mqtt
-    state_topic: "/envoy/json"
-    value_template: '{{ value_json["total-consumption"]["ph-a"]["p"] }}'
-    name: "mqtt_consumption"
-    qos: 0
-    unit_of_measurement: "W"
-    state_class: measurement
-    device_class: power
 
   - platform: template
     sensors:
