@@ -11,3 +11,5 @@ v1.0.5      - 12th April 2022 - Updated documentation url for online password ge
 v1.0.6      - 16th May 2022 - Updated to fix potential s6-overlay issue
 
 v1.0.9      - 07th July 2023 - Fix https self-sign error
+
+v1.0.9.1    - Temporary fix for firmware 7
