@@ -51,22 +51,17 @@ MQTT_PORT = option_dict["MQTT_PORT"]
 MQTT_TOPIC = "envoy/json"  # Note - if you change this topic, you'll need to also change the value_templates in configuration.yaml
 MQTT_USER = option_dict["MQTT_USER"]     # As described in the Documentation for the HA Mosquito broker add-on, the MQTT user/password are the user setup for mqtt
 MQTT_PASSWORD = option_dict["MQTT_PASSWORD"]    # If you use an external broker, use those details instead
-MQTT_TOPIC_FREEDS = option_dict["TOPIC_FREEDS"] 
-#
-# 
-#  
-envoy_host = option_dict["envoy_host"]  # ** Enter envoy-s IP. Note - use FQDN and not envoy.local if issues connecting
-# 
-envoy_password = option_dict["envoy_password"]   # This is the envoy's installer password - generate the password from the separate python script
-#
+MQTT_TOPIC_FREEDS = option_dict["TOPIC_FREEDS"]
+ENVOY_HOST = option_dict["ENVOY_HOST"]  # ** Enter envoy-s IP. Note - use FQDN and not envoy.local if issues connecting 
+ENVOY_PASSWORD = option_dict["ENVOY_PASSWORD"]   # This is the envoy's installer password - generate the password from the separate python script
+ENVOY_TOKEN = option_dict["ENVOY_TOKEN"]  # manualy generate token at https://entrez.enphaseenergy.com/entrez_tokens
 ####  End Settings - no changes after this line
-#
-#
 
 
+headers = {"Authorization": ENVOY_TOKEN}
 user = 'installer'
 auth = HTTPDigestAuth(user, envoy_password)
-marker = b'data: '
+marker = b''
 
 # The callback for when the client receives a CONNACK response from the server.
     # Subscribing after on_connect() means that if the connection is lost
@@ -164,14 +159,16 @@ data: {
 def scrape_stream():
     while True:
         try:
-            url = 'http://%s/stream/meter' % envoy_host
-            stream = requests.get(url, auth=auth, stream=True, timeout=5, verify=False)
+            url = 'http://%s/production.json' % envoy_host
+            stream = requests.get(url, auth=auth, stream=True, timeout=5, verify=False, headers=headers)
             for line in stream.iter_lines():
-                if line.startswith(marker):
-                    data = json.loads(line.replace(marker, b''))
+                if line.startswith(line):
+                    #data = json.loads(line.replace(marker, b''))
+                    data = json.loads(line)
                     json_string = json.dumps(data)
                     #pp.pprint(json_string)
-                    json_string_freeds = data['net-consumption']['ph-a']['p']                
+                    json_string_freeds = data['consumption'][0]['wNow']
+                    #json_string_freeds                
                     client.publish(topic= MQTT_TOPIC , payload= json_string, qos=0 )
                     client.publish(topic= MQTT_TOPIC_FREEDS , payload= json_string_freeds, qos=0 )
 
