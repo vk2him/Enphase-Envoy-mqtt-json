@@ -58,7 +58,7 @@ ENVOY_TOKEN = option_dict["ENVOY_TOKEN"]  # manualy generate token at https://en
 ####  End Settings - no changes after this line
 
 
-headers = {"Authorization": ENVOY_TOKEN}
+headers = {"Authorization": "Bearer " + ENVOY_TOKEN}
 user = 'installer'
 auth = HTTPDigestAuth(user, ENVOY_PASSWORD)
 marker = b''
@@ -166,9 +166,9 @@ def scrape_stream():
                     #data = json.loads(line.replace(marker, b''))
                     data = json.loads(line)
                     json_string = json.dumps(data)
-                    pp.pprint(json_string)
+                    #pp.pprint(json_string)
                     json_string_freeds = data['consumption'][0]['wNow']
-                    pp.pprint(json_string_freeds)
+                    #pp.pprint(json_string_freeds)
                     client.publish(topic= MQTT_TOPIC , payload= json_string, qos=0 )
                     client.publish(topic= MQTT_TOPIC_FREEDS , payload= json_string_freeds, qos=0 )
 
