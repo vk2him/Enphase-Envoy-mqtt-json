@@ -162,7 +162,7 @@ def scrape_stream():
     while True:
         try:
             url = 'http://%s/stream/meter' % envoy_host
-            stream = requests.get(url, auth=auth, stream=True, timeout=5)
+            stream = requests.get(url, auth=auth, stream=True, timeout=5, verify=False)
             for line in stream.iter_lines():
                 if line.startswith(marker):
                     data = json.loads(line.replace(marker, b''))
