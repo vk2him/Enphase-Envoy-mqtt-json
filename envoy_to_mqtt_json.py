@@ -60,7 +60,7 @@ ENVOY_TOKEN = option_dict["ENVOY_TOKEN"]  # manualy generate token at https://en
 
 headers = {"Authorization": ENVOY_TOKEN}
 user = 'installer'
-auth = HTTPDigestAuth(user, envoy_password)
+auth = HTTPDigestAuth(user, ENVOY_PASSWORD)
 marker = b''
 
 # The callback for when the client receives a CONNACK response from the server.
@@ -159,16 +159,16 @@ data: {
 def scrape_stream():
     while True:
         try:
-            url = 'http://%s/production.json' % envoy_host
+            url = 'http://%s/production.json' % ENVOY_HOST
             stream = requests.get(url, auth=auth, stream=True, timeout=5, verify=False, headers=headers)
             for line in stream.iter_lines():
                 if line.startswith(line):
                     #data = json.loads(line.replace(marker, b''))
                     data = json.loads(line)
                     json_string = json.dumps(data)
-                    #pp.pprint(json_string)
+                    pp.pprint(json_string)
                     json_string_freeds = data['consumption'][0]['wNow']
-                    #json_string_freeds                
+                    json_string_freeds                
                     client.publish(topic= MQTT_TOPIC , payload= json_string, qos=0 )
                     client.publish(topic= MQTT_TOPIC_FREEDS , payload= json_string_freeds, qos=0 )
 
