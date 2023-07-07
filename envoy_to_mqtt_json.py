@@ -168,7 +168,7 @@ def scrape_stream():
                     json_string = json.dumps(data)
                     pp.pprint(json_string)
                     json_string_freeds = data['consumption'][0]['wNow']
-                    json_string_freeds                
+                    pp.pprint(json_string_freeds)
                     client.publish(topic= MQTT_TOPIC , payload= json_string, qos=0 )
                     client.publish(topic= MQTT_TOPIC_FREEDS , payload= json_string_freeds, qos=0 )
 
