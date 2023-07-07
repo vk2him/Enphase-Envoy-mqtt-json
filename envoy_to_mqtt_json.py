@@ -12,6 +12,7 @@
 #
 
 import json
+import urllib3
 import requests
 import threading
 from requests.auth import HTTPDigestAuth
@@ -19,6 +20,8 @@ import pprint
 from datetime import datetime
 import time
 
+#disable warnings of self signed certificate https
+urllib3.disable_warnings()
 
 import paho.mqtt.client as mqtt
 client = mqtt.Client()
