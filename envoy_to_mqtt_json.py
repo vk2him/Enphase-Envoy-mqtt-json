@@ -243,7 +243,7 @@ def scrape_stream_meters():
                 print(dt_string,'Failed connect to Envoy got ', stream)
             else:
                 json_string = json.dumps(stream.json())
-                print(dt_string, 'Json Response:', json_string)
+                #print(dt_string, 'Json Response:', json_string)
                 json_string_freeds = json.dumps(round(stream.json()[1]["activePower"]))
                 client.publish(topic= MQTT_TOPIC , payload= json_string, qos=0 )
                 client.publish(topic= MQTT_TOPIC_FREEDS , payload= json_string_freeds, qos=0 )
