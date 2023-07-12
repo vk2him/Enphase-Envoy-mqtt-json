@@ -15,15 +15,19 @@ options:
   MQTT_PASSWORD: mqtt.password
   MQTT_PORT: 1883
   ENVOY_HOST: envoy.local
+  ENVOY_USER: secret
+  ENVOY_USER_PASS: secret
   ENVOY_PASSWORD: secret
   TOPIC_FREEDS: Inverter/GridWatts
-  ENVOY_TOKEN: generate token in https://entrez.enphaseenergy.com/entrez_tokens
+  ENVOY_TOKEN: leave null to generate, else get on https://entrez.enphaseenergy.com/entrez_tokens
 schema:
   MQTT_HOST: str
   MQTT_USER: str
   MQTT_PASSWORD: str
   MQTT_PORT: int
   ENVOY_HOST: str
+  ENVOY_USER: email
+  ENVOY_USER_PASS: password
   ENVOY_PASSWORD: str  
-  TOPIC_FREEDS: str
-  ENVOY_TOKEN: str
+  TOPIC_FREEDS: "str?"
+  ENVOY_TOKEN: "str?"
