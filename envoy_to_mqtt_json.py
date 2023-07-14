@@ -53,7 +53,7 @@ MQTT_USER = option_dict["MQTT_USER"]     # As described in the Documentation for
 MQTT_PASSWORD = option_dict["MQTT_PASSWORD"]    # If you use an external broker, use those details instead
 MQTT_TOPIC_FREEDS = option_dict["TOPIC_FREEDS"]
 ENVOY_HOST = option_dict["ENVOY_HOST"]  # ** Enter envoy-s IP. Note - use FQDN and not envoy.local if issues connecting 
-ENVOY_PASSWORD = option_dict["ENVOY_PASSWORD"]   # This is the envoy's installer password - generate the password from the separate python script
+#ENVOY_PASSWORD = option_dict["ENVOY_PASSWORD"]   # This is the envoy's installer password - generate the password from the separate python script
 
 #Password generator
 userName = b'installer'
