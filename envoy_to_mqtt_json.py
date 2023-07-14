@@ -65,7 +65,7 @@ gSerialNumber = None
 
 
 # Get info
-url_info ='https://%s/info' % ENVOY_HOST
+url_info ='http://%s/info' % ENVOY_HOST
 response_info = requests.get(url_info, verify=False)
 if response_info.status_code != 200:
     print(dt_string,'Failed connect to Envoy to get info got ', response_info, 'Verify URL', url_info )
