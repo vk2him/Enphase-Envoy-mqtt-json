@@ -17,9 +17,9 @@ options:
   ENVOY_HOST: envoy.local
   ENVOY_USER: secret
   ENVOY_USER_PASS: secret
-  ENVOY_PASSWORD: leave empty to generate
+  #ENVOY_PASSWORD: leave empty to generate
   TOPIC_FREEDS: Inverter/GridWatts
-  ENVOY_TOKEN: leave empty to generate
+  #ENVOY_TOKEN: leave empty to generate
 schema:
   MQTT_HOST: str
   MQTT_USER: str
@@ -28,6 +28,6 @@ schema:
   ENVOY_HOST: str
   ENVOY_USER: email
   ENVOY_USER_PASS: password
-  ENVOY_PASSWORD: "str?"  
+  #ENVOY_PASSWORD: "str?"  
   TOPIC_FREEDS: "str?"
-  ENVOY_TOKEN: "str?"
+  #ENVOY_TOKEN: "str?"
