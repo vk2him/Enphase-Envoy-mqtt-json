@@ -1,6 +1,6 @@
 name: "Stream mqtt from Enphase Envoy"
 description: "Converts Envoy Json to mqtt"
-version: "1.0.9.8"
+version: "1.0.9.9"
 slug: "envoy_to_mqtt_json"
 init: false
 arch:
