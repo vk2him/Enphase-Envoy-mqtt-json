@@ -24,8 +24,8 @@ schema:
   MQTT_USER: str
   MQTT_PASSWORD: password
   MQTT_PORT: int
-  MQTT_TOPIC: str
   ENVOY_HOST: str
   ENVOY_USER: email
   ENVOY_USER_PASS: password
   TOPIC_FREEDS: "str?"
+  MQTT_TOPIC: "str"
