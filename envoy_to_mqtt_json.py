@@ -48,7 +48,7 @@ ENVOY_TOKEN = None
 ENVOY_PASSWORD = None
 MQTT_HOST = option_dict["MQTT_HOST"]  # Note - if issues connecting, use FQDN for broker IP instead of hassio.local
 MQTT_PORT = option_dict["MQTT_PORT"]
-MQTT_TOPIC = "envoy/json"  # Note - if you change this topic, you'll need to also change the value_templates in configuration.yaml
+MQTT_TOPIC = option_dict["TOPIC"]  # Note - if you change this topic, you'll need to also change the value_templates in configuration.yaml
 MQTT_USER = option_dict["MQTT_USER"]     # As described in the Documentation for the HA Mosquito broker add-on, the MQTT user/password are the user setup for mqtt
 MQTT_PASSWORD = option_dict["MQTT_PASSWORD"]    # If you use an external broker, use those details instead
 MQTT_TOPIC_FREEDS = option_dict["TOPIC_FREEDS"]
@@ -148,7 +148,6 @@ def on_connect(client, userdata, flags, rc):
         # Subscribe to our incoming topic
         client.subscribe(MQTT_TOPIC)
         print("{0}".format(MQTT_TOPIC))
-
     elif rc == 1:
         print(dt_string," Connection refused - unacceptable protocol version")
     elif rc == 2:
@@ -180,37 +179,14 @@ client.on_connect    = on_connect
 client.on_disconnect = on_disconnect
 # Uncomment to enable debug messages
 #client.on_log       = on_log
-
 client.username_pw_set(MQTT_USER, MQTT_PASSWORD)
-
 client.connect(MQTT_HOST,int(MQTT_PORT), 30)
 
 # Add 10 second sleep to allow initialise
-
 time.sleep(10)
-
 #print(dt_string," Connected to %s:%s" % (MQTT_HOST, MQTT_PORT))
 
 client.loop_start()
-
-"""
-Sample truncated output data:
-
-data: {
-    "production": {
-        "ph-a": 
-        "ph-b": {
-        "ph-c": {
-            "p": -3.155,
-            "q": 241.832,
-            "s": 244.717,
-            "v": 246.138,
-            "i": 0.994,
-            "pf": 0.0,
-            "f": 50.0
-    "total-consumption":{
-    "net-consumption": {
-"""
 
 ## Generation of Envoy password based on serial number, copy from https://github.com/sarnau/EnphaseEnergy/passwordCalc.py
 ## Credits to Markus Fritze https://github.com/sarnau/EnphaseEnergy
@@ -294,7 +270,6 @@ def scrape_stream_production():
 
 def scrape_stream_livedata():
     global ENVOY_TOKEN
-    global ENVOY_PASSWORD
     ENVOY_TOKEN=token_gen(ENVOY_TOKEN)
     activate_json={"enable": 1}
     while True:
@@ -352,7 +327,151 @@ def scrape_stream_meters():
                 time.sleep(0.6)
         except requests.exceptions.RequestException as e:
             print(dt_string, ' Exception fetching stream data: %s' % e)
-
+# Example JSON output:
+"""
+[
+    {
+        "eid": 704643328,
+        "timestamp": 1689409016,
+        "actEnergyDlvd": 0.063,
+        "actEnergyRcvd": 7939.998,
+        "apparentEnergy": 63680.783,
+        "reactEnergyLagg": 788.493,
+        "reactEnergyLead": 3.712,
+        "instantaneousDemand": 0.000,
+        "activePower": 0.000,
+        "apparentPower": 43.086,
+        "reactivePower": -0.000,
+        "pwrFactor": 0.000,
+        "voltage": 237.151,
+        "current": 0.254,
+        "freq": 50.000,
+        "channels": [
+            {
+                "eid": 1778385169,
+                "timestamp": 1689409016,
+                "actEnergyDlvd": 0.063,
+                "actEnergyRcvd": 7939.998,
+                "apparentEnergy": 63680.783,
+                "reactEnergyLagg": 788.493,
+                "reactEnergyLead": 3.712,
+                "instantaneousDemand": 0.000,
+                "activePower": 0.000,
+                "apparentPower": 43.086,
+                "reactivePower": -0.000,
+                "pwrFactor": 0.000,
+                "voltage": 237.151,
+                "current": 0.254,
+                "freq": 50.000
+            },
+            {
+                "eid": 1778385170,
+                "timestamp": 1689409016,
+                "actEnergyDlvd": 0.061,
+                "actEnergyRcvd": 10104.018,
+                "apparentEnergy": 31694.583,
+                "reactEnergyLagg": 763.996,
+                "reactEnergyLead": 7.749,
+                "instantaneousDemand": -0.097,
+                "activePower": -0.097,
+                "apparentPower": 2.779,
+                "reactivePower": 0.000,
+                "pwrFactor": 0.000,
+                "voltage": 9.994,
+                "current": 0.278,
+                "freq": 50.000
+            },
+            {
+                "eid": 1778385171,
+                "timestamp": 1689409016,
+                "actEnergyDlvd": 0.000,
+                "actEnergyRcvd": 20943.151,
+                "apparentEnergy": 22986.373,
+                "reactEnergyLagg": 762.634,
+                "reactEnergyLead": 0.866,
+                "instantaneousDemand": -0.431,
+                "activePower": -0.431,
+                "apparentPower": 2.006,
+                "reactivePower": -0.000,
+                "pwrFactor": -1.000,
+                "voltage": 10.346,
+                "current": 0.194,
+                "freq": 50.000
+            }
+        ]
+    },
+    {
+        "eid": 704643584,
+        "timestamp": 1689409016,
+        "actEnergyDlvd": 3917484.219,
+        "actEnergyRcvd": 637541.835,
+        "apparentEnergy": 8370194.604,
+        "reactEnergyLagg": 113560.641,
+        "reactEnergyLead": 2299086.122,
+        "instantaneousDemand": -161.626,
+        "activePower": -161.626,
+        "apparentPower": 372.559,
+        "reactivePower": -212.953,
+        "pwrFactor": -0.431,
+        "voltage": 237.273,
+        "current": 1.571,
+        "freq": 50.000,
+        "channels": [
+            {
+                "eid": 1778385425,
+                "timestamp": 1689409016,
+                "actEnergyDlvd": 3917484.219,
+                "actEnergyRcvd": 637541.835,
+                "apparentEnergy": 8370194.604,
+                "reactEnergyLagg": 113560.641,
+                "reactEnergyLead": 2299086.122,
+                "instantaneousDemand": -161.626,
+                "activePower": -161.626,
+                "apparentPower": 372.559,
+                "reactivePower": -212.953,
+                "pwrFactor": -0.431,
+                "voltage": 237.273,
+                "current": 1.571,
+                "freq": 50.000
+            },
+            {
+                "eid": 1778385426,
+                "timestamp": 1689409016,
+                "actEnergyDlvd": 0.000,
+                "actEnergyRcvd": 18677.254,
+                "apparentEnergy": 10322.864,
+                "reactEnergyLagg": 798.595,
+                "reactEnergyLead": 0.000,
+                "instantaneousDemand": -0.222,
+                "activePower": -0.222,
+                "apparentPower": 0.898,
+                "reactivePower": 0.000,
+                "pwrFactor": 0.000,
+                "voltage": 3.024,
+                "current": 0.297,
+                "freq": 50.000
+            },
+            {
+                "eid": 1778385427,
+                "timestamp": 1689409016,
+                "actEnergyDlvd": 0.064,
+                "actEnergyRcvd": 27672.079,
+                "apparentEnergy": 115.734,
+                "reactEnergyLagg": 799.004,
+                "reactEnergyLead": 7.648,
+                "instantaneousDemand": -0.000,
+                "activePower": -0.000,
+                "apparentPower": 0.000,
+                "reactivePower": 0.000,
+                "pwrFactor": 0.000,
+                "voltage": 7.651,
+                "current": 0.000,
+                "freq": 50.000
+            }
+        ]
+    }
+]'
+"""
 
 def scrape_stream():
     global ENVOY_PASSWORD
@@ -380,6 +499,24 @@ def scrape_stream():
                         if len(MQTT_TOPIC_FREEDS) >=1: client.publish(topic= MQTT_TOPIC_FREEDS , payload= json_string_freeds, qos=0 )
         except requests.exceptions.RequestException as e:
             print(dt_string, ' Exception fetching stream data: %s' % e)
+"""
+Sample truncated output data:
+
+data: {
+    "production": {
+        "ph-a": 
+        "ph-b": {
+        "ph-c": {
+            "p": -3.155,
+            "q": 241.832,
+            "s": 244.717,
+            "v": 246.138,
+            "i": 0.994,
+            "pf": 0.0,
+            "f": 50.0
+    "total-consumption":{
+    "net-consumption": {
+"""
 
 def main():
     #Use url https://envoy.local/production.json
