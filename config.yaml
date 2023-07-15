@@ -1,6 +1,6 @@
 name: "Stream mqtt from Enphase Envoy"
 description: "Converts Envoy Json to mqtt"
-version: "1.0.9.12"
+version: "1.0.9.13"
 slug: "envoy_to_mqtt_json"
 init: false
 arch:
@@ -17,17 +17,15 @@ options:
   ENVOY_HOST: envoy.local
   ENVOY_USER: secret
   ENVOY_USER_PASS: secret
-  #ENVOY_PASSWORD: leave empty to generate
   TOPIC_FREEDS: Inverter/GridWatts
-  #ENVOY_TOKEN: leave empty to generate
+  MQTT_TOPIC: envoy/json
 schema:
   MQTT_HOST: str
   MQTT_USER: str
   MQTT_PASSWORD: password
   MQTT_PORT: int
+  MQTT_TOPIC: str
   ENVOY_HOST: str
   ENVOY_USER: email
   ENVOY_USER_PASS: password
-  #ENVOY_PASSWORD: "str?"  
   TOPIC_FREEDS: "str?"
-  #ENVOY_TOKEN: "str?"
