@@ -54,7 +54,7 @@ A Python script that takes a real time json stream from Enphase Envoy and publis
             /envoy/json
 7) mqtt steam will now be sent to your broker
 
-## `configuration.yaml` configuration examples
+## `configuration.yaml` configuration examples For FW 5
 ```yaml
 # Example configuration.yaml entry
 #
@@ -98,8 +98,45 @@ sensor:
     device_class: voltage
 #
 ```
+## `configuration.yaml` configuration examples For FW 7
+```
+mqtt:
+  sensor:
+    - name: envoy mqtt consumption
+      state_topic: "envoy/json"
+      value_template: '{{ value_json[1]["activePower"] | round(0) | int(0)}}'
+      unique_id: envoy_mqtt_consumption
+      qos: 0
+      unit_of_measurement: "W"
+      state_class: measurement
+      device_class: power
+    - name: envoy mqtt voltage
+      state_topic: "envoy/json"
+      value_template: '{{ value_json[1]["voltage"] | round(0) | int(0)}}'
+      unique_id: envoy_mqtt_voltage
+      qos: 0
+      unit_of_measurement: "V"
+      state_class: measurement
+      device_class: voltage
+    - name: envoy mqtt current
+      state_topic: "envoy/json"
+      value_template: '{{ value_json[1]["current"] | round(2)}}'
+      unique_id: envoy_mqtt_current
+      qos: 0
+      unit_of_measurement: "A"
+      state_class: measurement
+      device_class: current
+    - name: envoy mqtt power factor
+      state_topic: "envoy/json"
+      value_template: '{{ value_json[1]["pwrFactor"] | round(2)}}'
+      unique_id: envoy_mqtt_power_factor
+      qos: 0
+      unit_of_measurement: "%"
+      state_class: measurement
+      device_class: power_factor
+```
 
-## `value_template` configuration examples
+## `value_template` configuration examples for FW5
 ```yaml
 value_template: '{{ value_json["total-consumption"]["ph-a"]["p"] }}' # Phase A Total power consumed by house
 value_template: '{{ value_json["net-consumption"]["ph-c"]["p"] }}'   # Phase C - Total Power imported or exported
@@ -298,7 +335,7 @@ To stop it running use
 launchctl unload ~/Library/LaunchAgents/envoy.plist
 ```
 
-# Example output
+# Example output for FW 5
 The resulting mqtt topic should look like this example:
 ```
 {
@@ -414,7 +451,152 @@ __Note:__ Data is provided for three phases - unused phases have values of `0.0`
         "pf": = Power Factor
         "f": =  Frequency
 ```          
-
+# Example output for FW 7
+The resulting mqtt topic should look like this example:
+```
+[
+    {
+        "eid": 704643328,
+        "timestamp": 1689409016,
+        "actEnergyDlvd": 0.063,
+        "actEnergyRcvd": 7939.998,
+        "apparentEnergy": 63680.783,
+        "reactEnergyLagg": 788.493,
+        "reactEnergyLead": 3.712,
+        "instantaneousDemand": 0.000,
+        "activePower": 0.000,
+        "apparentPower": 43.086,
+        "reactivePower": -0.000,
+        "pwrFactor": 0.000,
+        "voltage": 237.151,
+        "current": 0.254,
+        "freq": 50.000,
+        "channels": [
+            {
+                "eid": 1778385169,
+                "timestamp": 1689409016,
+                "actEnergyDlvd": 0.063,
+                "actEnergyRcvd": 7939.998,
+                "apparentEnergy": 63680.783,
+                "reactEnergyLagg": 788.493,
+                "reactEnergyLead": 3.712,
+                "instantaneousDemand": 0.000,
+                "activePower": 0.000,
+                "apparentPower": 43.086,
+                "reactivePower": -0.000,
+                "pwrFactor": 0.000,
+                "voltage": 237.151,
+                "current": 0.254,
+                "freq": 50.000
+            },
+            {
+                "eid": 1778385170,
+                "timestamp": 1689409016,
+                "actEnergyDlvd": 0.061,
+                "actEnergyRcvd": 10104.018,
+                "apparentEnergy": 31694.583,
+                "reactEnergyLagg": 763.996,
+                "reactEnergyLead": 7.749,
+                "instantaneousDemand": -0.097,
+                "activePower": -0.097,
+                "apparentPower": 2.779,
+                "reactivePower": 0.000,
+                "pwrFactor": 0.000,
+                "voltage": 9.994,
+                "current": 0.278,
+                "freq": 50.000
+            },
+            {
+                "eid": 1778385171,
+                "timestamp": 1689409016,
+                "actEnergyDlvd": 0.000,
+                "actEnergyRcvd": 20943.151,
+                "apparentEnergy": 22986.373,
+                "reactEnergyLagg": 762.634,
+                "reactEnergyLead": 0.866,
+                "instantaneousDemand": -0.431,
+                "activePower": -0.431,
+                "apparentPower": 2.006,
+                "reactivePower": -0.000,
+                "pwrFactor": -1.000,
+                "voltage": 10.346,
+                "current": 0.194,
+                "freq": 50.000
+            }
+        ]
+    },
+    {
+        "eid": 704643584,
+        "timestamp": 1689409016,
+        "actEnergyDlvd": 3917484.219,
+        "actEnergyRcvd": 637541.835,
+        "apparentEnergy": 8370194.604,
+        "reactEnergyLagg": 113560.641,
+        "reactEnergyLead": 2299086.122,
+        "instantaneousDemand": -161.626,
+        "activePower": -161.626,
+        "apparentPower": 372.559,
+        "reactivePower": -212.953,
+        "pwrFactor": -0.431,
+        "voltage": 237.273,
+        "current": 1.571,
+        "freq": 50.000,
+        "channels": [
+            {
+                "eid": 1778385425,
+                "timestamp": 1689409016,
+                "actEnergyDlvd": 3917484.219,
+                "actEnergyRcvd": 637541.835,
+                "apparentEnergy": 8370194.604,
+                "reactEnergyLagg": 113560.641,
+                "reactEnergyLead": 2299086.122,
+                "instantaneousDemand": -161.626,
+                "activePower": -161.626,
+                "apparentPower": 372.559,
+                "reactivePower": -212.953,
+                "pwrFactor": -0.431,
+                "voltage": 237.273,
+                "current": 1.571,
+                "freq": 50.000
+            },
+            {
+                "eid": 1778385426,
+                "timestamp": 1689409016,
+                "actEnergyDlvd": 0.000,
+                "actEnergyRcvd": 18677.254,
+                "apparentEnergy": 10322.864,
+                "reactEnergyLagg": 798.595,
+                "reactEnergyLead": 0.000,
+                "instantaneousDemand": -0.222,
+                "activePower": -0.222,
+                "apparentPower": 0.898,
+                "reactivePower": 0.000,
+                "pwrFactor": 0.000,
+                "voltage": 3.024,
+                "current": 0.297,
+                "freq": 50.000
+            },
+            {
+                "eid": 1778385427,
+                "timestamp": 1689409016,
+                "actEnergyDlvd": 0.064,
+                "actEnergyRcvd": 27672.079,
+                "apparentEnergy": 115.734,
+                "reactEnergyLagg": 799.004,
+                "reactEnergyLead": 7.648,
+                "instantaneousDemand": -0.000,
+                "activePower": -0.000,
+                "apparentPower": 0.000,
+                "reactivePower": 0.000,
+                "pwrFactor": 0.000,
+                "voltage": 7.651,
+                "current": 0.000,
+                "freq": 50.000
+            }
+        ]
+    }
+]'
+```
 ## Donation
 If this project helps you, you can give me a cup of coffee<br/>
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/vk2him)
