@@ -27,6 +27,7 @@ client = mqtt.Client()
 pp = pprint.PrettyPrinter()
 import xml.etree.ElementTree as ET
 import hashlib
+import os
 
 
 with open("/data/options.json", "r") as f:
@@ -45,7 +46,6 @@ dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
 # I use the Home Assistant Mosquito broker add-on but you can use an external one if needed
 # python
 ENVOY_TOKEN = None
-ENVOY_PASSWORD = None
 MQTT_HOST = option_dict["MQTT_HOST"]  # Note - if issues connecting, use FQDN for broker IP instead of hassio.local
 MQTT_PORT = option_dict["MQTT_PORT"]
 MQTT_TOPIC = option_dict["MQTT_TOPIC"]  # Note - if you change this topic, you'll need to also change the value_templates in configuration.yaml
@@ -119,6 +119,26 @@ def token_gen(token):
     else:
         return token
 
+#cache token
+filename = 'token.txt'
+if not os.path.exists(filename):
+    with open(filename, 'w') as f:
+        f.write('')
+with open(filename, 'r') as f:
+    try:
+        ENVOY_TOKEN = f.read()
+        if ENVOY_TOKEN:
+            print (dt_string, 'Read token from file', filename,': ',ENVOY_TOKEN)
+            pass
+        else:
+            print (dt_string, 'No token in file:', filename,' generating a new one')
+            ENVOY_TOKEN=token_gen(None)
+            with open(filename, 'w') as f:
+                f.write(ENVOY_TOKEN)
+            pass
+    except Exception as e:
+        print(e)
+
 # The callback for when the client receives a CONNACK response from the server.
     # Subscribing after on_connect() means that if the connection is lost
     # the subscription will be renewed when reconnecting.
@@ -147,7 +167,7 @@ def on_connect(client, userdata, flags, rc):
         print(dt_string," Connected to %s:%s" % (MQTT_HOST, MQTT_PORT))
         # Subscribe to our incoming topic
         client.subscribe(MQTT_TOPIC)
-        print("{0}".format(MQTT_TOPIC))
+        print(dt_string,'Subscribed to MQTT_TOPIC:', "{0}".format(MQTT_TOPIC))
     elif rc == 1:
         print(dt_string," Connection refused - unacceptable protocol version")
     elif rc == 2:
@@ -261,10 +281,11 @@ def scrape_stream_production():
                         data = json.loads(line)
                         json_string = json.dumps(data)
                         #pp.pprint(json_string)
-                        json_string_freeds = data['consumption'][0]['wNow']
                         #pp.pprint(json_string_freeds)
                         client.publish(topic= MQTT_TOPIC , payload= json_string, qos=0 )
-                        if len(MQTT_TOPIC_FREEDS) >=1: client.publish(topic= MQTT_TOPIC_FREEDS , payload= json_string_freeds, qos=0 )
+                        if len(MQTT_TOPIC_FREEDS) >=3: 
+                            client.publish(topic= MQTT_TOPIC_FREEDS , payload= json_string_freeds, qos=0 )
+                            json_string_freeds = data['consumption'][0]['wNow']
         except requests.exceptions.RequestException as e:
             print(dt_string, ' Exception fetching stream data: %s' % e)
 
@@ -296,9 +317,10 @@ def scrape_stream_livedata():
             else:
                 json_string = json.dumps(stream.json())
                 #print(dt_string, 'Json Response:', json_string)
-                json_string_freeds = json.dumps(round(stream.json()["meters"]["grid"]["agg_p_mw"]*0.001))
                 client.publish(topic= MQTT_TOPIC , payload= json_string, qos=0 )
-                if len(MQTT_TOPIC_FREEDS) >=1: client.publish(topic= MQTT_TOPIC_FREEDS , payload= json_string_freeds, qos=0 )
+                if len(MQTT_TOPIC_FREEDS) >=3: 
+                    client.publish(topic= MQTT_TOPIC_FREEDS , payload= json_string_freeds, qos=0 )
+                    json_string_freeds = json.dumps(round(stream.json()["meters"]["grid"]["agg_p_mw"]*0.001))
                 time.sleep(0.6)
         except requests.exceptions.RequestException as e:
             print(dt_string, ' Exception fetching stream data: %s' % e)
@@ -321,9 +343,10 @@ def scrape_stream_meters():
             else:
                 json_string = json.dumps(stream.json())
                 #print(dt_string, 'Json Response:', json_string)
-                json_string_freeds = json.dumps(round(stream.json()[1]["activePower"]))
                 client.publish(topic= MQTT_TOPIC , payload= json_string, qos=0 )
-                if len(MQTT_TOPIC_FREEDS) >=1: client.publish(topic= MQTT_TOPIC_FREEDS , payload= json_string_freeds, qos=0 )
+                if len(MQTT_TOPIC_FREEDS) >=3: 
+                    client.publish(topic= MQTT_TOPIC_FREEDS , payload= json_string_freeds, qos=0 )
+                    json_string_freeds = json.dumps(round(stream.json()[1]["activePower"]))
                 time.sleep(0.6)
         except requests.exceptions.RequestException as e:
             print(dt_string, ' Exception fetching stream data: %s' % e)
@@ -473,6 +496,7 @@ def scrape_stream_meters():
 ]'
 """
 
+
 def scrape_stream():
     global ENVOY_PASSWORD
     serial = serialNumber.encode("utf-8")
@@ -499,9 +523,9 @@ def scrape_stream():
                         if len(MQTT_TOPIC_FREEDS) >=1: client.publish(topic= MQTT_TOPIC_FREEDS , payload= json_string_freeds, qos=0 )
         except requests.exceptions.RequestException as e:
             print(dt_string, ' Exception fetching stream data: %s' % e)
+
 """
 Sample truncated output data:
-
 data: {
     "production": {
         "ph-a": 
