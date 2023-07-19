@@ -45,24 +45,33 @@ dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
 #
 # I use the Home Assistant Mosquito broker add-on but you can use an external one if needed
 # python
-ENVOY_TOKEN = None
+
 MQTT_HOST = option_dict["MQTT_HOST"]  # Note - if issues connecting, use FQDN for broker IP instead of hassio.local
 MQTT_PORT = option_dict["MQTT_PORT"]
 MQTT_TOPIC = option_dict["MQTT_TOPIC"]  # Note - if you change this topic, you'll need to also change the value_templates in configuration.yaml
 MQTT_USER = option_dict["MQTT_USER"]     # As described in the Documentation for the HA Mosquito broker add-on, the MQTT user/password are the user setup for mqtt
 MQTT_PASSWORD = option_dict["MQTT_PASSWORD"]    # If you use an external broker, use those details instead
-MQTT_TOPIC_FREEDS = option_dict["TOPIC_FREEDS"]
 ENVOY_HOST = option_dict["ENVOY_HOST"]  # ** Enter envoy-s IP. Note - use FQDN and not envoy.local if issues connecting 
 ENVOY_USER= option_dict["ENVOY_USER"]
 ENVOY_USER_PASS= option_dict["ENVOY_USER_PASS"]
+USE_FREEDS= option_dict["USE_FREEDS"]
+MQTT_TOPIC_FREEDS = "Inverter/GridWatts"
+####  End Settings - no changes after this line
 
 #Password generator
 userName = b'installer'
 DEFAULT_REALM = b'enphaseenergy.com'
 gSerialNumber = None
-
+tokenfile = '/data/token.txt'
 ####  End Settings - no changes after this line
 
+#json validator
+def is_json_valid(json_data):
+    try:
+        json.loads(json_data)
+    except ValueError as e:
+        return False
+    return True
 
 # Get info
 url_info ='http://%s/info' % ENVOY_HOST
@@ -94,15 +103,15 @@ else:
     print (dt_string,'Cannot decode firmware version, did not got valid XML for <software> from ', url)
     print (dt_string,'Response content:', response.content)
 
+if USE_FREEDS:
+    print (dt_string,'FREEDS is active, using topic:', MQTT_TOPIC_FREEDS)
+else:
+    print (dt_string,'FREEDS is inactive')
+
 #Token generator
 def token_gen(token):
     if token is None or token=='':
-        print(dt_string,'No token avaliable, generating one')
-        # envoy_serial = requests.get(url_info, verify=False)
-        # if envoy_serial.status_code != 200:
-        #     print(dt_string,'Failed connect to Envoy to get serial number got ', envoy_serial, 'Verify URL', url_info )
-        # else:
-        #     envoy_serial=envoy_serial.text.partition('</sn>')[0].partition('<sn>')[2]
+        print(dt_string,'Generating new token')
         data = {'user[email]': ENVOY_USER, 'user[password]': ENVOY_USER_PASS}
         response = requests.post('https://enlighten.enphaseenergy.com/login/login.json?', data=data)
         if response.status_code != 200:
@@ -115,26 +124,26 @@ def token_gen(token):
                 print(dt_string,'Failed connect to https://entrez.enphaseenergy.com/tokens to generate token part 2 got', response, ' using this info', data )
             else:
                 print(dt_string,'Token generated', response.text)
+                with open(tokenfile, 'w') as f:
+                    f.write(response.text)
                 return response.text
     else:
         return token
 
 #cache token
-filename = '/data/token.txt'
-if not os.path.exists(filename):
-    with open(filename, 'w') as f:
+if not os.path.exists(tokenfile):
+    with open(tokenfile, 'w') as f:
         f.write('')
-with open(filename, 'r') as f:
+
+with open(tokenfile, 'r') as f:
     try:
         ENVOY_TOKEN = f.read()
         if ENVOY_TOKEN:
-            print (dt_string, 'Read token from file', filename,': ',ENVOY_TOKEN)
+            print (dt_string, 'Read token from file',tokenfile,': ',ENVOY_TOKEN)
             pass
         else:
-            print (dt_string, 'No token in file:', filename,' generating a new one')
+            print (dt_string, 'No token in file:', tokenfile)
             ENVOY_TOKEN=token_gen(None)
-            with open(filename, 'w') as f:
-                f.write(ENVOY_TOKEN)
             pass
     except Exception as e:
         print(e)
@@ -164,7 +173,7 @@ def on_connect(client, userdata, flags, rc):
     5: Refused . not authorised (MQTT v3.1 broker only)
     """
     if rc == 0:
-        print(dt_string," Connected to %s:%s" % (MQTT_HOST, MQTT_PORT))
+        print(dt_string,"Connected to %s:%s" % (MQTT_HOST, MQTT_PORT))
         # Subscribe to our incoming topic
         client.subscribe(MQTT_TOPIC)
         print(dt_string,'Subscribed to MQTT_TOPIC:', "{0}".format(MQTT_TOPIC))
@@ -259,7 +268,6 @@ def emupwGetMobilePasswd(serialNumber,userName,realm=None):
             password += cc
     return password
 
-
 def scrape_stream_production():
     global ENVOY_TOKEN
     ENVOY_TOKEN=token_gen(ENVOY_TOKEN)
@@ -276,16 +284,16 @@ def scrape_stream_production():
             elif stream.status_code != 200:
                 print(dt_string,'Failed connect to Envoy got ', stream)
             else:
-                for line in stream.iter_lines():
-                    if line.startswith(line):
-                        data = json.loads(line)
-                        json_string = json.dumps(data)
-                        #pp.pprint(json_string)
-                        #pp.pprint(json_string_freeds)
-                        client.publish(topic= MQTT_TOPIC , payload= json_string, qos=0 )
-                        if len(MQTT_TOPIC_FREEDS) >=3: 
-                            json_string_freeds = data['consumption'][0]['wNow']
-                            client.publish(topic= MQTT_TOPIC_FREEDS , payload= json_string_freeds, qos=0 )
+                if is_json_valid(stream.content):
+                    #print(dt_string, 'Json Response:', stream.json())
+                    json_string = json.dumps(stream.json())
+                    client.publish(topic= MQTT_TOPIC , payload= json_string, qos=0 )
+                    if USE_FREEDS: 
+                        json_string_freeds = json.dumps(round(stream.json()['consumption'][0]['wNow']))
+                        client.publish(topic= MQTT_TOPIC_FREEDS , payload= json_string_freeds, qos=0 )
+                    time.sleep(1)
+                else:
+                    print(dt_string, 'Invalid Json Response:', stream.content)
         except requests.exceptions.RequestException as e:
             print(dt_string, ' Exception fetching stream data: %s' % e)
 
@@ -305,23 +313,30 @@ def scrape_stream_livedata():
                 stream = requests.get(url, timeout=5, verify=False, headers=headers)
             elif stream.status_code != 200:
                 print(dt_string,'Failed connect to Envoy got ', stream)
-            elif stream.json()['connection']['sc_stream'] == 'disabled':
-                url_activate='https://%s/ivp/livedata/stream' % ENVOY_HOST
-                print(dt_string, 'Stream is not active, trying to enable')
-                response_activate=requests.post(url_activate, verify=False, headers=headers, json=activate_json)
-                if response_activate.json()['sc_stream']=='enabled':
-                    stream = requests.get(url, stream=True, timeout=5, verify=False, headers=headers)
-                    print(dt_string, 'Success, stream is active now')
+            elif is_json_valid(stream.content): 
+                if stream.json()['connection']['sc_stream'] == 'disabled':
+                    url_activate='https://%s/ivp/livedata/stream' % ENVOY_HOST
+                    print(dt_string, 'Stream is not active, trying to enable')
+                    response_activate=requests.post(url_activate, verify=False, headers=headers, json=activate_json)
+                    if is_json_valid(response_activate.content):
+                        if response_activate.json()['sc_stream']=='enabled':
+                            stream = requests.get(url, stream=True, timeout=5, verify=False, headers=headers)
+                            print(dt_string, 'Success, stream is active now')
+                        else:
+                            print(dt_string, 'Failed to activate stream ', response_activate.content)
+                    else:
+                        print(dt_string, 'Invalid Json Response:', response_activate.content)
                 else:
-                    print(dt_string, 'Failed to activate stream ', response_activate.content)
-            else:
-                json_string = json.dumps(stream.json())
-                #print(dt_string, 'Json Response:', json_string)
-                client.publish(topic= MQTT_TOPIC , payload= json_string, qos=0 )
-                if len(MQTT_TOPIC_FREEDS) >=3: 
-                    json_string_freeds = json.dumps(round(stream.json()["meters"]["grid"]["agg_p_mw"]*0.001))
-                    client.publish(topic= MQTT_TOPIC_FREEDS , payload= json_string_freeds, qos=0 )
-                time.sleep(0.6)
+                    json_string = json.dumps(stream.json())
+                    #print(dt_string, 'Json Response:', json_string)
+                    client.publish(topic= MQTT_TOPIC , payload= json_string, qos=0 )
+                    if USE_FREEDS: 
+                        json_string_freeds = json.dumps(round(stream.json()["meters"]["grid"]["agg_p_mw"]*0.001))
+                        client.publish(topic= MQTT_TOPIC_FREEDS , payload= json_string_freeds, qos=0 )
+                    time.sleep(0.6)
+            elif not is_json_valid(stream.content):
+                print(dt_string, 'Invalid Json Response:', stream.content)
+
         except requests.exceptions.RequestException as e:
             print(dt_string, ' Exception fetching stream data: %s' % e)
 
@@ -341,13 +356,16 @@ def scrape_stream_meters():
             elif stream.status_code != 200:
                 print(dt_string,'Failed connect to Envoy got ', stream)
             else:
-                json_string = json.dumps(stream.json())
-                #print(dt_string, 'Json Response:', json_string)
-                client.publish(topic= MQTT_TOPIC , payload= json_string, qos=0 )
-                if len(MQTT_TOPIC_FREEDS) >=3: 
-                    json_string_freeds = json.dumps(round(stream.json()[1]["activePower"]))
-                    client.publish(topic= MQTT_TOPIC_FREEDS , payload= json_string_freeds, qos=0 )
-                time.sleep(0.6)
+                if is_json_valid(stream.content):
+                    #print(dt_string, 'Json Response:', stream.json())
+                    json_string = json.dumps(stream.json())
+                    client.publish(topic= MQTT_TOPIC , payload= json_string, qos=0 )
+                    if USE_FREEDS: 
+                        json_string_freeds = json.dumps(round(stream.json()[1]["activePower"]))
+                        client.publish(topic= MQTT_TOPIC_FREEDS , payload= json_string_freeds, qos=0 )
+                    time.sleep(0.6)
+                else:
+                    print(dt_string, 'Invalid Json Response:', stream.content)
         except requests.exceptions.RequestException as e:
             print(dt_string, ' Exception fetching stream data: %s' % e)
 # Example JSON output:
@@ -513,15 +531,18 @@ def scrape_stream():
             elif stream.status_code != 200:
                 print(dt_string,'Failed connect to Envoy got ', stream)
             else:
-                for line in stream.iter_lines():
-                    if line.startswith(marker):
-                        data = json.loads(line.replace(marker, b''))
-                        json_string = json.dumps(data)
-                        #print(dt_string, 'Json Response:', json_string)
-                        client.publish(topic= MQTT_TOPIC , payload= json_string, qos=0 )
-                        if len(MQTT_TOPIC_FREEDS) >=3: 
-                            json_string_freeds = data['net-consumption']['ph-a']['p']
-                            client.publish(topic= MQTT_TOPIC_FREEDS , payload= json_string_freeds, qos=0 )
+                if is_json_valid(stream.content):
+                    for line in stream.iter_lines():
+                        if line.startswith(marker):
+                            data = json.loads(line.replace(marker, b''))
+                            json_string = json.dumps(data)
+                            #print(dt_string, 'Json Response:', json_string)
+                            client.publish(topic= MQTT_TOPIC , payload= json_string, qos=0 )
+                            if USE_FREEDS: 
+                                json_string_freeds = data['net-consumption']['ph-a']['p']
+                                client.publish(topic= MQTT_TOPIC_FREEDS , payload= json_string_freeds, qos=0 )
+                else:
+                    print(dt_string, 'Invalid Json Response:', response_activate.content)
         except requests.exceptions.RequestException as e:
             print(dt_string, ' Exception fetching stream data: %s' % e)
 
