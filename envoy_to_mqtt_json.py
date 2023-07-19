@@ -120,7 +120,7 @@ def token_gen(token):
         return token
 
 #cache token
-filename = 'token.txt'
+filename = '/data/token.txt'
 if not os.path.exists(filename):
     with open(filename, 'w') as f:
         f.write('')
