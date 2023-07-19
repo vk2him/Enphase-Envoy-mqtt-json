@@ -4,7 +4,8 @@
     "MQTT_PASSWORD": "mqtt.password",
     "MQTT_PORT": "1883",
     "ENVOY_HOST": "envoy.local",
-    "ENVOY_PASSWORD": "envoy.password",
+    "ENVOY_USER": secret,
+    "ENVOY_USER_PASS": secret,
     "TOPIC_FREEDS": "Inverter/GridWatts",
-    "ENVOY_TOKEN": "generate token in https://entrez.enphaseenergy.com/entrez_tokens"
+    "MQTT_TOPIC": "envoy/json"
   }
