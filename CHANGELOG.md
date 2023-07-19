@@ -13,3 +13,5 @@ MQTT_TOPIC configurable.
 MQTT_TOPIC_FREEDS configurable Optionally.
 
 Get values with 1s interval for FW 7.
+
+Cache the token in a file, only generating a new one if the cached one is not avaliable or expired.
