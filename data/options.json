@@ -6,6 +6,6 @@
     "ENVOY_HOST": "envoy.local",
     "ENVOY_USER": "secret",
     "ENVOY_USER_PASS": "secret",
-    "TOPIC_FREEDS": "Inverter/GridWatts",
+    "USE_FREEDS"="False",
     "MQTT_TOPIC": "envoy/json"
   }
