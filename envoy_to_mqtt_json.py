@@ -284,8 +284,8 @@ def scrape_stream_production():
                         #pp.pprint(json_string_freeds)
                         client.publish(topic= MQTT_TOPIC , payload= json_string, qos=0 )
                         if len(MQTT_TOPIC_FREEDS) >=3: 
-                            client.publish(topic= MQTT_TOPIC_FREEDS , payload= json_string_freeds, qos=0 )
                             json_string_freeds = data['consumption'][0]['wNow']
+                            client.publish(topic= MQTT_TOPIC_FREEDS , payload= json_string_freeds, qos=0 )
         except requests.exceptions.RequestException as e:
             print(dt_string, ' Exception fetching stream data: %s' % e)
 
@@ -319,8 +319,8 @@ def scrape_stream_livedata():
                 #print(dt_string, 'Json Response:', json_string)
                 client.publish(topic= MQTT_TOPIC , payload= json_string, qos=0 )
                 if len(MQTT_TOPIC_FREEDS) >=3: 
-                    client.publish(topic= MQTT_TOPIC_FREEDS , payload= json_string_freeds, qos=0 )
                     json_string_freeds = json.dumps(round(stream.json()["meters"]["grid"]["agg_p_mw"]*0.001))
+                    client.publish(topic= MQTT_TOPIC_FREEDS , payload= json_string_freeds, qos=0 )
                 time.sleep(0.6)
         except requests.exceptions.RequestException as e:
             print(dt_string, ' Exception fetching stream data: %s' % e)
@@ -345,8 +345,8 @@ def scrape_stream_meters():
                 #print(dt_string, 'Json Response:', json_string)
                 client.publish(topic= MQTT_TOPIC , payload= json_string, qos=0 )
                 if len(MQTT_TOPIC_FREEDS) >=3: 
-                    client.publish(topic= MQTT_TOPIC_FREEDS , payload= json_string_freeds, qos=0 )
                     json_string_freeds = json.dumps(round(stream.json()[1]["activePower"]))
+                    client.publish(topic= MQTT_TOPIC_FREEDS , payload= json_string_freeds, qos=0 )
                 time.sleep(0.6)
         except requests.exceptions.RequestException as e:
             print(dt_string, ' Exception fetching stream data: %s' % e)
@@ -518,9 +518,10 @@ def scrape_stream():
                         data = json.loads(line.replace(marker, b''))
                         json_string = json.dumps(data)
                         #print(dt_string, 'Json Response:', json_string)
-                        json_string_freeds = data['net-consumption']['ph-a']['p']                
                         client.publish(topic= MQTT_TOPIC , payload= json_string, qos=0 )
-                        if len(MQTT_TOPIC_FREEDS) >=1: client.publish(topic= MQTT_TOPIC_FREEDS , payload= json_string_freeds, qos=0 )
+                        if len(MQTT_TOPIC_FREEDS) >=3: 
+                            json_string_freeds = data['net-consumption']['ph-a']['p']
+                            client.publish(topic= MQTT_TOPIC_FREEDS , payload= json_string_freeds, qos=0 )
         except requests.exceptions.RequestException as e:
             print(dt_string, ' Exception fetching stream data: %s' % e)
 
