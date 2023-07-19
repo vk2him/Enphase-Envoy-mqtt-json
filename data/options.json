@@ -4,8 +4,8 @@
     "MQTT_PASSWORD": "mqtt.password",
     "MQTT_PORT": "1883",
     "ENVOY_HOST": "envoy.local",
-    "ENVOY_USER": secret,
-    "ENVOY_USER_PASS": secret,
+    "ENVOY_USER": "secret",
+    "ENVOY_USER_PASS": "secret",
     "TOPIC_FREEDS": "Inverter/GridWatts",
     "MQTT_TOPIC": "envoy/json"
   }
