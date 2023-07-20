@@ -1,6 +1,6 @@
 name: "Stream mqtt from Enphase Envoy"
 description: "Converts Envoy Json to mqtt firmware v5 or v7"
-version: "1.0.8"
+version: "1.0.9"
 slug: "envoy_to_mqtt_json"
 init: false
 arch:
@@ -14,10 +14,10 @@ options:
   MQTT_USER: mqtt.user
   MQTT_PASSWORD: mqtt.password
   MQTT_PORT: 1883
-  MQTT_TOPIC: envoy/json
+  MQTT_TOPIC: /envoy/json
   ENVOY_HOST: envoy.local
-  ENVOY_USER: secret
-  ENVOY_USER_PASS: secret
+  ENVOY_USER: enter.enphase.userid
+  ENVOY_USER_PASS: enter.enphase.password
   USE_FREEDS: False
 
 schema:
