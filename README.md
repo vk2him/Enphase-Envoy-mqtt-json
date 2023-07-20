@@ -1,20 +1,16 @@
 # Python script: `Enphase Envoy mqtt json for Home Assistant`
 
-A Python script that takes a real time json stream from Enphase Envoy and publishes to a mqtt broker. This can then be used within Home Assistant or for other applications. The data updates at least once per second with negligible load on the Envoy.
+A Python script that takes a real time json stream from an Enphase Envoy and publishes to a mqtt broker. This can then be used within Home Assistant or for other applications. The data updates at least once per second with negligible load on the Envoy.
 
-**Note - It will not work on 7.x.x firmware as the authentication method has changed.**
+**Note - Now works with 7.x.x firmware - thansk to @helderd.**
 
-**If you have 7.x.x, you can contact Enphase Support and request they downgrade or keep your Envoy permanently on firmware 5.x.x .**
+**Breaking change. You must enter your Enphase account userid Email and password in Configuration so the token can be retreived**
+
 
 # Requirements
 
-- An Enphase Envoy running 5.x.x firmware.
-- The serial number of your Envoy which can be obtained by browsing to "http://envoy.local"
-- The installer password for your envoy. 
-  - To obtain the passsword via one of these methods:
-    1) Use this online generator: https://blahnana.com/passwordcalc.html
-    2) Run the included `passwordCalc.py` python script using your Envoys serial number after first editing `passwordCalc.py` and inserting your serial number. Don't change the `userName` - it must be installer
-        - The serial number program is courtesy of "https://github.com/sarnau/EnphaseEnergy"
+- An Enphase Envoy running 5.x.x or 7.x.x firmware.
+- For 7.x.x a token is automatically downloaded from Enphase every time the addon is started, so you must include your Enphase account username and password in configutaion
 - A mqtt broker that is already running - this can be external or use the `Mosquitto broker` from the Home Assistant Add-on store
     - If you use the HA broker add-on, create a Home Assistant user/password for mqtt as described in the `Mosquitto broker` installation instructions
 
@@ -54,50 +50,89 @@ A Python script that takes a real time json stream from Enphase Envoy and publis
             /envoy/json
 7) mqtt steam will now be sent to your broker
 
-## `configuration.yaml` configuration examples
+## `configuration.yaml` configuration examples For FW 5
 ```yaml
 # Example configuration.yaml entry
 #
-# Creates sensors with names such as sensor.mqtt_production using the new mqtt integration method
+# Creates sensors with names such as sensor.mqtt_production
 #
+sensor:
+  - platform: mqtt
+    state_topic: "envoy/json"
+    name: "mqtt_production"
+    qos: 0
+    unit_of_measurement: "W"
+    value_template: '{% if is_state("sun.sun", "below_horizon")%}0{%else%}{{ value_json["production"]["ph-a"]["p"]  | int(0) }}{%endif%}'
+    state_class: measurement
+    device_class: power
 
-mqtt:
-  sensor:
-    - name: "mqtt_production"
-      state_topic: "/envoy/json"
-      qos: 0
-      unit_of_measurement: "W"
-      value_template: '{% if is_state("sun.sun", "below_horizon")%}0{%else%}{{ value_json["production"]["ph-a"]["p"]  | float }}{%endif%}'
-      state_class: measurement
-      device_class: power
+  - platform: mqtt
+    state_topic: "envoy/json"
+    value_template: '{{ value_json["total-consumption"]["ph-a"]["p"] }}'
+    name: "mqtt_consumption"
+    qos: 0
+    unit_of_measurement: "W"
+    state_class: measurement
+    device_class: power
 
-    - name: "mqtt_consumption"
-      state_topic: "/envoy/json"
-      value_template: '{{ value_json["total-consumption"]["ph-a"]["p"] }}'
-      qos: 0
-      unit_of_measurement: "W"
-      state_class: measurement
-      device_class: power
+  - platform: mqtt
+    state_topic: "envoy/json"
+    name: "mqtt_power_factor"
+    qos: 0
+    unit_of_measurement: "%"
+    value_template: '{{ value_json["total-consumption"]["ph-a"]["pf"] }}'
+    state_class: measurement
+    device_class: power_factor
 
-    - name: "mqtt_power_factor"
-      state_topic: "/envoy/json"
-      qos: 0
-      unit_of_measurement: "%"
-      value_template: '{{ value_json["total-consumption"]["ph-a"]["pf"] }}'
-      state_class: measurement
-      device_class: power_factor
-
-    - name: "mqtt_voltage"
-      state_topic: "/envoy/json"
-      qos: 0
-      unit_of_measurement: "V"
-      value_template: '{{ value_json["total-consumption"]["ph-a"]["v"] }}'
-      state_class: measurement
-      device_class: voltage
+  - platform: mqtt
+    state_topic: "envoy/json"
+    name: "mqtt_voltage"
+    qos: 0
+    unit_of_measurement: "V"
+    value_template: '{{ value_json["total-consumption"]["ph-a"]["v"] }}'
+    state_class: measurement
+    device_class: voltage
 #
 ```
+## `configuration.yaml` configuration examples For FW 7
+```
+mqtt:
+  sensor:
+    - name: envoy mqtt consumption
+      state_topic: "envoy/json"
+      value_template: '{{ value_json[1]["activePower"] | round(0) | int(0)}}'
+      unique_id: envoy_mqtt_consumption
+      qos: 0
+      unit_of_measurement: "W"
+      state_class: measurement
+      device_class: power
+    - name: envoy mqtt voltage
+      state_topic: "envoy/json"
+      value_template: '{{ value_json[1]["voltage"] | round(0) | int(0)}}'
+      unique_id: envoy_mqtt_voltage
+      qos: 0
+      unit_of_measurement: "V"
+      state_class: measurement
+      device_class: voltage
+    - name: envoy mqtt current
+      state_topic: "envoy/json"
+      value_template: '{{ value_json[1]["current"] | round(2)}}'
+      unique_id: envoy_mqtt_current
+      qos: 0
+      unit_of_measurement: "A"
+      state_class: measurement
+      device_class: current
+    - name: envoy mqtt power factor
+      state_topic: "envoy/json"
+      value_template: '{{ value_json[1]["pwrFactor"] | round(2)}}'
+      unique_id: envoy_mqtt_power_factor
+      qos: 0
+      unit_of_measurement: "%"
+      state_class: measurement
+      device_class: power_factor
+```
 
-## `value_template` configuration examples
+## `value_template` configuration examples for FW5
 ```yaml
 value_template: '{{ value_json["total-consumption"]["ph-a"]["p"] }}' # Phase A Total power consumed by house
 value_template: '{{ value_json["net-consumption"]["ph-c"]["p"] }}'   # Phase C - Total Power imported or exported
@@ -136,6 +171,23 @@ sensor:
   #
   # These ones are for Envoy via mqtt
   #
+  - platform: mqtt
+    state_topic: "envoy/json"
+    name: "mqtt_production"
+    qos: 0
+    unit_of_measurement: "W"
+    value_template: '{% if is_state("sun.sun", "below_horizon")%}0{%else%}{{ value_json["production"]["ph-a"]["p"]  | int(0) }}{%endif%}'
+    state_class: measurement
+    device_class: power
+
+  - platform: mqtt
+    state_topic: "envoy/json"
+    value_template: '{{ value_json["total-consumption"]["ph-a"]["p"] }}'
+    name: "mqtt_consumption"
+    qos: 0
+    unit_of_measurement: "W"
+    state_class: measurement
+    device_class: power
 
   - platform: template
     sensors:
@@ -279,7 +331,7 @@ To stop it running use
 launchctl unload ~/Library/LaunchAgents/envoy.plist
 ```
 
-# Example output
+# Example output for FW 5
 The resulting mqtt topic should look like this example:
 ```
 {
@@ -395,7 +447,152 @@ __Note:__ Data is provided for three phases - unused phases have values of `0.0`
         "pf": = Power Factor
         "f": =  Frequency
 ```          
-
+# Example output for FW 7
+The resulting mqtt topic should look like this example:
+```
+[
+    {
+        "eid": 704643328,
+        "timestamp": 1689409016,
+        "actEnergyDlvd": 0.063,
+        "actEnergyRcvd": 7939.998,
+        "apparentEnergy": 63680.783,
+        "reactEnergyLagg": 788.493,
+        "reactEnergyLead": 3.712,
+        "instantaneousDemand": 0.000,
+        "activePower": 0.000,
+        "apparentPower": 43.086,
+        "reactivePower": -0.000,
+        "pwrFactor": 0.000,
+        "voltage": 237.151,
+        "current": 0.254,
+        "freq": 50.000,
+        "channels": [
+            {
+                "eid": 1778385169,
+                "timestamp": 1689409016,
+                "actEnergyDlvd": 0.063,
+                "actEnergyRcvd": 7939.998,
+                "apparentEnergy": 63680.783,
+                "reactEnergyLagg": 788.493,
+                "reactEnergyLead": 3.712,
+                "instantaneousDemand": 0.000,
+                "activePower": 0.000,
+                "apparentPower": 43.086,
+                "reactivePower": -0.000,
+                "pwrFactor": 0.000,
+                "voltage": 237.151,
+                "current": 0.254,
+                "freq": 50.000
+            },
+            {
+                "eid": 1778385170,
+                "timestamp": 1689409016,
+                "actEnergyDlvd": 0.061,
+                "actEnergyRcvd": 10104.018,
+                "apparentEnergy": 31694.583,
+                "reactEnergyLagg": 763.996,
+                "reactEnergyLead": 7.749,
+                "instantaneousDemand": -0.097,
+                "activePower": -0.097,
+                "apparentPower": 2.779,
+                "reactivePower": 0.000,
+                "pwrFactor": 0.000,
+                "voltage": 9.994,
+                "current": 0.278,
+                "freq": 50.000
+            },
+            {
+                "eid": 1778385171,
+                "timestamp": 1689409016,
+                "actEnergyDlvd": 0.000,
+                "actEnergyRcvd": 20943.151,
+                "apparentEnergy": 22986.373,
+                "reactEnergyLagg": 762.634,
+                "reactEnergyLead": 0.866,
+                "instantaneousDemand": -0.431,
+                "activePower": -0.431,
+                "apparentPower": 2.006,
+                "reactivePower": -0.000,
+                "pwrFactor": -1.000,
+                "voltage": 10.346,
+                "current": 0.194,
+                "freq": 50.000
+            }
+        ]
+    },
+    {
+        "eid": 704643584,
+        "timestamp": 1689409016,
+        "actEnergyDlvd": 3917484.219,
+        "actEnergyRcvd": 637541.835,
+        "apparentEnergy": 8370194.604,
+        "reactEnergyLagg": 113560.641,
+        "reactEnergyLead": 2299086.122,
+        "instantaneousDemand": -161.626,
+        "activePower": -161.626,
+        "apparentPower": 372.559,
+        "reactivePower": -212.953,
+        "pwrFactor": -0.431,
+        "voltage": 237.273,
+        "current": 1.571,
+        "freq": 50.000,
+        "channels": [
+            {
+                "eid": 1778385425,
+                "timestamp": 1689409016,
+                "actEnergyDlvd": 3917484.219,
+                "actEnergyRcvd": 637541.835,
+                "apparentEnergy": 8370194.604,
+                "reactEnergyLagg": 113560.641,
+                "reactEnergyLead": 2299086.122,
+                "instantaneousDemand": -161.626,
+                "activePower": -161.626,
+                "apparentPower": 372.559,
+                "reactivePower": -212.953,
+                "pwrFactor": -0.431,
+                "voltage": 237.273,
+                "current": 1.571,
+                "freq": 50.000
+            },
+            {
+                "eid": 1778385426,
+                "timestamp": 1689409016,
+                "actEnergyDlvd": 0.000,
+                "actEnergyRcvd": 18677.254,
+                "apparentEnergy": 10322.864,
+                "reactEnergyLagg": 798.595,
+                "reactEnergyLead": 0.000,
+                "instantaneousDemand": -0.222,
+                "activePower": -0.222,
+                "apparentPower": 0.898,
+                "reactivePower": 0.000,
+                "pwrFactor": 0.000,
+                "voltage": 3.024,
+                "current": 0.297,
+                "freq": 50.000
+            },
+            {
+                "eid": 1778385427,
+                "timestamp": 1689409016,
+                "actEnergyDlvd": 0.064,
+                "actEnergyRcvd": 27672.079,
+                "apparentEnergy": 115.734,
+                "reactEnergyLagg": 799.004,
+                "reactEnergyLead": 7.648,
+                "instantaneousDemand": -0.000,
+                "activePower": -0.000,
+                "apparentPower": 0.000,
+                "reactivePower": 0.000,
+                "pwrFactor": 0.000,
+                "voltage": 7.651,
+                "current": 0.000,
+                "freq": 50.000
+            }
+        ]
+    }
+]'
+```
 ## Donation
 If this project helps you, you can give me a cup of coffee<br/>
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/vk2him)

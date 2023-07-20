@@ -1,8 +1,12 @@
 {
-    "MQTT_HOST": "ip.address.of.homeasistant",
-    "MQTT_USER": "mqtt.user",
-    "MQTT_PASSWORD": "mqtt.password",
-    "MQTT_PORT": "1883",
-    "envoy_host": "envoy.local",
-    "envoy_password": "envoy.password"
+  "MQTT_HOST": "ip.address.of.homeasistant",
+  "MQTT_USER": "mqtt.user",
+  "MQTT_PASSWORD": "mqtt.password",
+  "MQTT_PORT": "1883",
+  "ENVOY_HOST": "envoy.local",
+  "ENVOY_USER": "secret",
+  "ENVOY_PASSWORD": "secret",
+  "ENVOY_USER_PASS": "secret",
+  "USE_FREEDS": "False",
+  "MQTT_TOPIC": "/envoy/json"
   }
