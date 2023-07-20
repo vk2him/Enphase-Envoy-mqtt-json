@@ -1,6 +1,6 @@
 name: "Stream mqtt from Enphase Envoy"
 description: "Converts Envoy Json to mqtt"
-version: "1.0.9.19"
+version: "1.0.9.20"
 slug: "envoy_to_mqtt_json"
 init: false
 arch:
@@ -18,7 +18,7 @@ options:
   ENVOY_HOST: envoy.local
   ENVOY_USER: secret
   ENVOY_USER_PASS: secret
-  USE_FREEDS: Activate publish second topic to FREEDS
+  USE_FREEDS: False
 schema:
   MQTT_HOST: str
   MQTT_USER: str
