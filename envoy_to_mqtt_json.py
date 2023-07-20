@@ -516,7 +516,7 @@ def scrape_stream_meters():
 
 
 def scrape_stream():
-    global ENVOY_PASSWORD
+    ENVOY_PASSWORD = None
     serial = serialNumber.encode("utf-8")
     if ENVOY_PASSWORD =='' or ENVOY_PASSWORD == None : ENVOY_PASSWORD=emupwGetMobilePasswd(serial, userName)
     print(dt_string, 'Envoy password is', ENVOY_PASSWORD)
