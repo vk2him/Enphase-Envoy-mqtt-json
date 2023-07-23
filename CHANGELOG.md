@@ -1,3 +1,5 @@
+v1.0.12 23rd July - cater for R5 Envoy
+
 v1.0.11 20th July 2023 Cache the token in a file, only generating a new one if the cached one is not avaliable or expired.
 
 Firmware 5 and 7 compatible thanks to helderfmf
