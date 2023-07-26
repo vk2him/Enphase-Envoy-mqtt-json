@@ -19,6 +19,7 @@ options:
   ENVOY_USER: enter.enphase.userid@email.com
   ENVOY_USER_PASS: enter.enphase.password
   USE_FREEDS: False
+  DEBUG: False
 
 schema:
   MQTT_HOST: str
@@ -28,5 +29,6 @@ schema:
   MQTT_TOPIC: str
   ENVOY_HOST: str
   ENVOY_USER: str
-  ENVOY_USER_PASS: str
+  ENVOY_USER_PASS: password
   USE_FREEDS: bool
+  DEBUG: bool

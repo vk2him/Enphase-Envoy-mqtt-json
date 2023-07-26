@@ -8,5 +8,6 @@
   "ENVOY_PASSWORD": "secret",
   "ENVOY_USER_PASS": "secret",
   "USE_FREEDS": "False",
-  "MQTT_TOPIC": "/envoy/json"
+  "MQTT_TOPIC": "/envoy/json",
+  "DEBUG": "False"
   }
