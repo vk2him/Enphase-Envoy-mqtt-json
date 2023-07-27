@@ -219,7 +219,9 @@ client.on_disconnect = on_disconnect
 # Uncomment to enable debug messages
 #client.on_log       = on_log
 client.username_pw_set(MQTT_USER, MQTT_PASSWORD)
+if DEBUG: print(dt_string, 'Will wait for mqtt connect')
 wait: client.connect(MQTT_HOST,int(MQTT_PORT), 30)
+if DEBUG: print(dt_string, 'Finished waiting for mqtt connect')
 wait: client.loop_start()
 
 ## Generation of Envoy password based on serial number, copy from https://github.com/sarnau/EnphaseEnergy/passwordCalc.py
@@ -400,9 +402,7 @@ def scrape_stream():
                     if DEBUG: print(dt_string, 'Line marker:', line)
                     data = json.loads(line.replace(marker, b''))
                     if DEBUG: print(dt_string, 'Data:', data)
-                    json_string = json.dumps(data)
-                    #pp.pprint(json_string)
-                                    
+                    json_string = json.dumps(data)                                   
                     client.publish(topic= MQTT_TOPIC , payload= json_string, qos=0 )
         except requests.exceptions.RequestException as e:
             print(dt_string, ' Exception fetching stream data: %s' % e)
