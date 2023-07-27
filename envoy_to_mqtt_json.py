@@ -140,22 +140,23 @@ def token_gen(token):
         return token
 
 #cache token
-if not os.path.exists(tokenfile):
-    with open(tokenfile, 'w') as f:
-        f.write('')
+if envoy_version != 5:
+    if not os.path.exists(tokenfile):
+        with open(tokenfile, 'w') as f:
+            f.write('')
 
-with open(tokenfile, 'r') as f:
-    try:
-        ENVOY_TOKEN = f.read()
-        if ENVOY_TOKEN:
-            print (dt_string, 'Read token from file',tokenfile,': ',ENVOY_TOKEN)
-            pass
-        else:
-            print (dt_string, 'No token in file:', tokenfile)
-            ENVOY_TOKEN=token_gen(None)
-            pass
-    except Exception as e:
-        print(e)
+    with open(tokenfile, 'r') as f:
+        try:
+            ENVOY_TOKEN = f.read()
+            if ENVOY_TOKEN:
+                print (dt_string, 'Read token from file',tokenfile,': ',ENVOY_TOKEN)
+                pass
+            else:
+                print (dt_string, 'No token in file:', tokenfile)
+                ENVOY_TOKEN=token_gen(None)
+                pass
+        except Exception as e:
+            print(e)
 
 # The callback for when the client receives a CONNACK response from the server.
     # Subscribing after on_connect() means that if the connection is lost
@@ -380,9 +381,8 @@ def scrape_stream_meters():
             print(dt_string, ' Exception fetching stream data: %s' % e)
 
 def scrape_stream():
-    ENVOY_PASSWORD = None
     serial = serialNumber.encode("utf-8")
-    if ENVOY_PASSWORD =='' or ENVOY_PASSWORD == None : ENVOY_PASSWORD=emupwGetMobilePasswd(serial, userName)
+    ENVOY_PASSWORD=emupwGetMobilePasswd(serial, userName)
     print(dt_string, 'Envoy password is', ENVOY_PASSWORD)
     if DEBUG: print(dt_string, 'Username:',userName.decode())
     auth = HTTPDigestAuth(userName.decode(), ENVOY_PASSWORD)
