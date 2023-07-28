@@ -5,6 +5,17 @@ Firmware 5 and 7 compatible.
 Auto find witch firmware is installed of Envoy.
 
 Auto generate token for firmware 7.
+v1.0.12 23rd July - cater for R5 Envoy
+
+v1.0.11 20th July 2023 Cache the token in a file, only generating a new one if the cached one is not avaliable or expired.
+
+Firmware 5 and 7 compatible thanks to helderfmf
+
+** Note - you must now configure your Envoy username and password to obtain token for Firmware 7
+
+Auto find which firmware is installed in Envoy.
+
+Auto generate token for firmware 7.
 
 Auto generate password for firmware 5.
 
@@ -14,4 +25,14 @@ MQTT_TOPIC_FREEDS configurable Optionally.
 
 Get values with 1s interval for FW 7.
 
-Cache the token in a file, only generating a new one if the cached one is not avaliable or expired.
+v1.0.7      - 22nd December 2022 - Updated Documentation for new mqtt integration method in configuration.yaml
+
+Auto generate password for firmware 5.
+
+v1.0.4      - 10th April 2022 - Added delay in start
+
+v1.0.3      - 8th April 2022 - Added Mqtt Port to Configuration
+
+v1.0.2      - 8th April 2022 - Update Documentation
+
+v1.0.1      - 7th April 2022 - Initial release
