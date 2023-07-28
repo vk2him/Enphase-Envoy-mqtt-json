@@ -397,11 +397,11 @@ def scrape_stream():
             stream = requests.get(url, auth=auth, stream=True, timeout=5)
 #            if DEBUG: print(dt_string, 'stream:', stream.content)
             for line in stream.iter_lines():
-                if DEBUG: print(dt_string, 'Line:', line)
+#                if DEBUG: print(dt_string, 'Line:', line)
                 if line.startswith(marker):
                     if DEBUG: print(dt_string, 'Line marker:', line)
                     data = json.loads(line.replace(marker, b''))
-                    if DEBUG: print(dt_string, 'Data:', data)
+#                    if DEBUG: print(dt_string, 'Data:', data)
                     json_string = json.dumps(data)                                   
                     client.publish(topic= MQTT_TOPIC , payload= json_string, qos=0 )
         except requests.exceptions.RequestException as e:
