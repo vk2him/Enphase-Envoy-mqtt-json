@@ -1,10 +1,5 @@
-15th July 2023
+v1.0.13 28th July - add some debug code to faultfind
 
-Firmware 5 and 7 compatible.
-
-Auto find witch firmware is installed of Envoy.
-
-Auto generate token for firmware 7.
 v1.0.12 23rd July - cater for R5 Envoy
 
 v1.0.11 20th July 2023 Cache the token in a file, only generating a new one if the cached one is not avaliable or expired.
