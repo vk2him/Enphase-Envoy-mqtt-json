@@ -98,6 +98,9 @@ if len(version) != 0:
     if version[0].count('D7.') == 1:
         print (dt_string,'Detected FW version 7')
         envoy_version=7
+    elif version[0].count('D8.') == 1:
+        print (dt_string,'Detected Firmware version D8')
+        envoy_version=7
     elif version[0].count('R5.') == 1:
         print (dt_string,'Detected Firmware version R5')
         envoy_version=5
