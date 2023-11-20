@@ -2,15 +2,15 @@
 
 A Python script that takes a real time json stream from an Enphase Envoy and publishes to a mqtt broker. This can then be used within Home Assistant or for other applications. The data updates at least once per second with negligible load on the Envoy.
 
-**Note - Now works with 7.x.x firmware - thansk to @helderd.**
+**Note - Now works with 7.x.x and 8.x.x firmware - thanks to @helderd.**
 
 **Breaking change. You must enter your Enphase account userid Email and password in Configuration so the token can be retreived**
 
 
 # Requirements
 
-- An Enphase Envoy running 5.x.x or 7.x.x firmware.
-- For 7.x.x a token is automatically downloaded from Enphase every time the addon is started, so you must include your Enphase account username and password in configutaion
+- An Enphase Envoy running 5.x.x, 7.x.x or 8.x.x firmware.
+- For 7.x.x and 8.x.x a token is automatically downloaded from Enphase every time the addon is started, so you must include your Enphase account username and password in configutaion
 - A mqtt broker that is already running - this can be external or use the `Mosquitto broker` from the Home Assistant Add-on store
     - If you use the HA broker add-on, create a Home Assistant user/password for mqtt as described in the `Mosquitto broker` installation instructions
 
@@ -94,7 +94,7 @@ sensor:
     device_class: voltage
 #
 ```
-## `configuration.yaml` configuration examples For FW 7
+## `configuration.yaml` configuration examples For FW 7 and FW 8
 ```
 mqtt:
   sensor:
@@ -447,7 +447,7 @@ __Note:__ Data is provided for three phases - unused phases have values of `0.0`
         "pf": = Power Factor
         "f": =  Frequency
 ```          
-# Example output for FW 7
+# Example output for FW 7 and FW 8
 The resulting mqtt topic should look like this example:
 ```
 [
