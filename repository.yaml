@@ -1,4 +1,4 @@
 # https://developers.home-assistant.io/docs/add-ons/repository#repository-configuration
-name: underlyingglitch Enphase add-on repository
-url: 'https://github.com/underlyingglitch/Enphase-Envoy-mqtt-json'
-maintainer: underlyingglitch <underlyinglitch@gmail.com>
+name: vk2him's Enphase add-on repository
+url: 'https://github.com/vk2him/Enphase-Envoy-mqtt-json'
+maintainer: vk2him <vk2him@gmail.com>
