@@ -1,3 +1,5 @@
+v1.0.15 19th Sept 2024 - Added Version 8 battery support with thanks to https://github.com/Underlyingglitch
+
 v1.0.14 28th July - add debug code. ONLY ENABLE FOR TESTING !!!!!!
 
 v1.0.12 23rd July - cater for R5 Envoy
