@@ -95,7 +95,7 @@ sensor:
 #
 ```
 ## `configuration.yaml` configuration examples For FW 7 and FW 8
-```
+```yaml
 mqtt:
   sensor:
     - name: envoy mqtt consumption
@@ -130,6 +130,107 @@ mqtt:
       unit_of_measurement: "%"
       state_class: measurement
       device_class: power_factor
+```
+
+## `configuration.yaml` configuration examples For FW 8 (with batteries)
+```yaml
+mqtt:
+  sensor:
+    - name: envoy mqtt consumption
+      state_topic: "/envoy/json"
+      value_template: '{{ value_json["meters"]["grid"]["agg_p_mw"]/1000 | round(0) | int(0) }}'
+      unique_id: envoy_mqtt_consumption
+      qos: 0
+      unit_of_measurement: "W"
+      state_class: measurement
+      device_class: power
+    - name: envoy mqtt production
+      state_topic: "/envoy/json"
+      value_template: '{{ value_json["meters"]["pv"]["agg_p_mw"]/1000 | round(0) | int(0) }}'
+      unique_id: envoy_mqtt_production
+      qos: 0
+      unit_of_measurement: "W"
+      state_class: measurement
+      device_class: power
+    - name: envoy mqtt battery
+      state_topic: "/envoy/json"
+      value_template: '{{ value_json["meters"]["storage"]["agg_p_mw"]/1000 | round(0) | int(0) }}'
+      unique_id: envoy_mqtt_battery
+      qos: 0
+      unit_of_measurement: "W"
+      state_class: measurement
+      device_class: power
+```
+Available sensors (with example data):
+```json
+{
+...
+"meters": {
+        "last_update": 1726696114,
+        "soc": 86,
+        "main_relay_state": 1,
+        "gen_relay_state": 5,
+        "backup_bat_mode": 2,
+        "backup_soc": 6,
+        "is_split_phase": 0,
+        "phase_count": 3,
+        "enc_agg_soc": 86,
+        "enc_agg_energy": 8600,
+        "acb_agg_soc": 0,
+        "acb_agg_energy": 0,
+        "pv": {
+            "agg_p_mw": -13884,
+            "agg_s_mva": -62992,
+            "agg_p_ph_a_mw": -6792,
+            "agg_p_ph_b_mw": 0,
+            "agg_p_ph_c_mw": -7093,
+            "agg_s_ph_a_mva": -61120,
+            "agg_s_ph_b_mva": 97423,
+            "agg_s_ph_c_mva": -99295
+        },
+        "storage": {
+            "agg_p_mw": -6774000,
+            "agg_s_mva": -6812225,
+            "agg_p_ph_a_mw": -3383000,
+            "agg_p_ph_b_mw": -3391000,
+            "agg_p_ph_c_mw": 0,
+            "agg_s_ph_a_mva": -3329223,
+            "agg_s_ph_b_mva": -3489823,
+            "agg_s_ph_c_mva": 6820
+        },
+        "grid": {
+            "agg_p_mw": 7585180,
+            "agg_s_mva": 7839779,
+            "agg_p_ph_a_mw": 3869223,
+            "agg_p_ph_b_mw": 3701411,
+            "agg_p_ph_c_mw": 14546,
+            "agg_s_ph_a_mva": 3869223,
+            "agg_s_ph_b_mva": 3723269,
+            "agg_s_ph_c_mva": 247286
+        },
+        "load": {
+            "agg_p_mw": 797296,
+            "agg_s_mva": 964562,
+            "agg_p_ph_a_mw": 479431,
+            "agg_p_ph_b_mw": 310411,
+            "agg_p_ph_c_mw": 7453,
+            "agg_s_ph_a_mva": 478880,
+            "agg_s_ph_b_mva": 330869,
+            "agg_s_ph_c_mva": 154811
+        },
+        "generator": {
+            "agg_p_mw": 0,
+            "agg_s_mva": 0,
+            "agg_p_ph_a_mw": 0,
+            "agg_p_ph_b_mw": 0,
+            "agg_p_ph_c_mw": 0,
+            "agg_s_ph_a_mva": 0,
+            "agg_s_ph_b_mva": 0,
+            "agg_s_ph_c_mva": 0
+        }
+    },
+...
+}
 ```
 
 ## `value_template` configuration examples for FW5
