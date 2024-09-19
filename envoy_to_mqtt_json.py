@@ -71,6 +71,8 @@ tokenfile = 'data/token.txt'
 
 #json validator
 def is_json_valid(json_data):
+    if isinstance(json_data, bytes):
+        json_data = json_data.decode('utf-8', errors='replace')
     try:
         json.loads(json_data)
     except ValueError as e:
@@ -100,7 +102,7 @@ if len(version) != 0:
         envoy_version=7
     elif version[0].count('D8.') == 1:
         print (dt_string,'Detected Firmware version D8')
-        envoy_version=7
+        envoy_version=8
     elif version[0].count('R5.') == 1:
         print (dt_string,'Detected Firmware version R5')
         envoy_version=5
@@ -322,7 +324,7 @@ def scrape_stream_livedata():
                 stream = requests.get(url, timeout=5, verify=False, headers=headers)
             elif stream.status_code != 200:
                 print(dt_string,'Failed connect to Envoy got ', stream)
-            elif is_json_valid(stream.content): 
+            elif is_json_valid(stream.content):
                 if stream.json()['connection']['sc_stream'] == 'disabled':
                     url_activate='https://%s/ivp/livedata/stream' % ENVOY_HOST
                     print(dt_string, 'Stream is not active, trying to enable')
@@ -417,8 +419,11 @@ def main():
     #stream_thread = threading.Thread(target=scrape_stream_livedata)   
     #Use url https://envoy.local/ivp/meters/reading
     #stream_thread = threading.Thread(target=scrape_stream_meters)
-    
-    if envoy_version == 7:
+
+    if envoy_version == 8:
+        stream_thread = threading.Thread(target=scrape_stream_livedata)
+        stream_thread.start()
+    elif envoy_version == 7:
         stream_thread = threading.Thread(target=scrape_stream_meters)
         stream_thread.start()
     elif envoy_version == 5:
