@@ -2,10 +2,9 @@
 
 A Python script that takes a real time json stream from an Enphase Envoy and publishes to a mqtt broker. This can then be used within Home Assistant or for other applications. The data updates at least once per second with negligible load on the Envoy.
 
-**Note - Now works with 7.x.x and 8.x.x firmware - thanks to @helderd.**
+**Note - Now works with 7.x.x and 8.x.x firmware - thanks to @helderd**
 
-**Breaking change. You must enter your Enphase account userid Email and password in Configuration so the token can be retreived**
-
+**Note - September 2024 - added ability to utilise Battery data - to enable set BATTERY_INSTALLED to True in configuration, then setup templates per Battery examples below - thanks to @Underlyingglitch**
 
 # Requirements
 

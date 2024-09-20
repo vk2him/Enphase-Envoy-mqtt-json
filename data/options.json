@@ -9,5 +9,6 @@
   "ENVOY_USER_PASS": "secret",
   "USE_FREEDS": "False",
   "MQTT_TOPIC": "/envoy/json",
-  "DEBUG": "False"
+  "DEBUG": "False",
+  "BATTERY_INSTALLED": "False"
   }

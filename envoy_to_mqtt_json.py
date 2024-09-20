@@ -58,6 +58,7 @@ ENVOY_HOST = option_dict["ENVOY_HOST"]  # ** Enter envoy-s IP. Note - use FQDN a
 ENVOY_USER= option_dict["ENVOY_USER"]
 ENVOY_USER_PASS= option_dict["ENVOY_USER_PASS"]
 USE_FREEDS= option_dict["USE_FREEDS"]
+BATTERY_INSTALLED= option_dict["BATTERY_INSTALLED"]
 DEBUG= option_dict["DEBUG"]
 MQTT_TOPIC_FREEDS = "Inverter/GridWatts"
 ####  End Settings - no changes after this line
@@ -415,13 +416,18 @@ def scrape_stream():
 def main():
     #Use url https://envoy.local/production.json
     #stream_thread = threading.Thread(target=scrape_stream_production)
-    #Use url https://envoy.local/ivp/livedata/status
-    #stream_thread = threading.Thread(target=scrape_stream_livedata)   
-    #Use url https://envoy.local/ivp/meters/reading
+
+    #Use this for batteries url https://envoy.local/ivp/livedata/status
+    #stream_thread = threading.Thread(target=scrape_stream_livedata)  
+
+    #Use url http://envoy.local/ivp/meters/reading
     #stream_thread = threading.Thread(target=scrape_stream_meters)
 
-    if envoy_version == 8:
+    if BATTERY_INSTALLED:
         stream_thread = threading.Thread(target=scrape_stream_livedata)
+        stream_thread.start()        
+    elif envoy_version == 8:
+        stream_thread = threading.Thread(target=scrape_stream_meters)
         stream_thread.start()
     elif envoy_version == 7:
         stream_thread = threading.Thread(target=scrape_stream_meters)
