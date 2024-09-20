@@ -1,3 +1,5 @@
+v1.0.18 20th Sept 2024 - Better handling for Batteries allowing it to be optional 
+
 v1.0.15 19th Sept 2024 - Added Version 8 battery support with thanks to https://github.com/Underlyingglitch
 
 v1.0.14 28th July - add debug code. ONLY ENABLE FOR TESTING !!!!!!
