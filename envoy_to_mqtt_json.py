@@ -423,7 +423,10 @@ def main():
     #Use url http://envoy.local/ivp/meters/reading
     #stream_thread = threading.Thread(target=scrape_stream_meters)
 
-    if BATTERY_INSTALLED:
+    if envoy_version == 5:
+        stream_thread = threading.Thread(target=scrape_stream)
+        stream_thread.start()
+    elif BATTERY_INSTALLED:
         stream_thread = threading.Thread(target=scrape_stream_livedata)
         stream_thread.start()        
     elif envoy_version == 8:
@@ -431,9 +434,6 @@ def main():
         stream_thread.start()
     elif envoy_version == 7:
         stream_thread = threading.Thread(target=scrape_stream_meters)
-        stream_thread.start()
-    elif envoy_version == 5:
-        stream_thread = threading.Thread(target=scrape_stream)
         stream_thread.start()
     else:
         print(dt_string,'Don''t know what version to use, will not start')
