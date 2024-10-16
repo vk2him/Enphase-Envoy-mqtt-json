@@ -1,0 +1,18 @@
+services:
+  enphase-mqtt:
+    container_name: enphase-mqtt
+    build:
+      context: .
+      dockerfile: DockerfileHosted
+    volumes:
+      - ./data/options.json:/data/options.json
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      - MQTT_HOST=0.0.0.0
+      - MQTT_PORT=1883
+
+networks:
+  default:
+    name: host
+    external: true

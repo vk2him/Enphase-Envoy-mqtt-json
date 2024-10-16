@@ -1,0 +1,10 @@
+# Use Alpine as the base image
+FROM alpine:latest
+# Install requirements for add-on
+RUN apk add --no-cache python3 py3-requests py3-pip py3-paho-mqtt
+
+RUN mkdir /data
+
+COPY envoy_to_mqtt_json.py /
+
+CMD ["python3", "/envoy_to_mqtt_json.py"]
