@@ -96,41 +96,34 @@ sensor:
 #
 ```
 ## `configuration.yaml` configuration examples For FW 7 and FW 8
+This value might needs tweaking based on your firmware.
 ```yaml
 mqtt:
   sensor:
     - name: envoy mqtt consumption
       state_topic: "/envoy/json"
-      value_template: '{{ value_json[1]["activePower"] | round(0) | int(0)}}'
+      value_template: '{{ (value_json.meters.load.agg_p_mw| float / 1000) | round(0) | int(0)}}'
       unique_id: envoy_mqtt_consumption
       qos: 0
       unit_of_measurement: "W"
       state_class: measurement
       device_class: power
-    - name: envoy mqtt voltage
+    - name: envoy mqtt grid
       state_topic: "/envoy/json"
-      value_template: '{{ value_json[1]["voltage"] | round(0) | int(0)}}'
-      unique_id: envoy_mqtt_voltage
+      value_template: '{{ (value_json.meters.grid.agg_p_mw| float / 1000) | round(0) | int(0)}}'
+      unique_id: envoy_mqtt_consumption
       qos: 0
-      unit_of_measurement: "V"
+      unit_of_measurement: "W"
       state_class: measurement
-      device_class: voltage
-    - name: envoy mqtt current
+      device_class: power
+    - name: envoy mqtt solar production
       state_topic: "/envoy/json"
-      value_template: '{{ value_json[1]["current"] | round(2)}}'
-      unique_id: envoy_mqtt_current
+      value_template: '{{ (value_json.meters.pv.agg_p_mw| float / 1000) | round(0) | int(0)}}'
+      unique_id: envoy_mqtt_consumption
       qos: 0
-      unit_of_measurement: "A"
+      unit_of_measurement: "W"
       state_class: measurement
-      device_class: current
-    - name: envoy mqtt power factor
-      state_topic: "/envoy/json"
-      value_template: '{{ value_json[1]["pwrFactor"] | round(2)}}'
-      unique_id: envoy_mqtt_power_factor
-      qos: 0
-      unit_of_measurement: "%"
-      state_class: measurement
-      device_class: power_factor
+      device_class: power
 ```
 
 ## `configuration.yaml` configuration examples For FW 8 (with batteries)
@@ -139,7 +132,7 @@ mqtt:
   sensor:
     - name: envoy mqtt consumption
       state_topic: "/envoy/json"
-      value_template: '{{ value_json["meters"]["grid"]["agg_p_mw"]/1000 | round(0) | int(0) }}'
+      value_template: '{{ value_json.meters.load.agg_p_mw/1000 | round(0) | int(0) }}'
       unique_id: envoy_mqtt_consumption
       qos: 0
       unit_of_measurement: "W"
@@ -147,7 +140,7 @@ mqtt:
       device_class: power
     - name: envoy mqtt production
       state_topic: "/envoy/json"
-      value_template: '{{ value_json["meters"]["pv"]["agg_p_mw"]/1000 | round(0) | int(0) }}'
+      value_template: '{{ value_json.meters.pv.agg_p_mw/1000 | round(0) | int(0) }}'
       unique_id: envoy_mqtt_production
       qos: 0
       unit_of_measurement: "W"
@@ -155,7 +148,7 @@ mqtt:
       device_class: power
     - name: envoy mqtt battery
       state_topic: "/envoy/json"
-      value_template: '{{ value_json["meters"]["storage"]["agg_p_mw"]/1000 | round(0) | int(0) }}'
+      value_template: '{{ value_json.meters.storage.agg_p_mw/1000 | round(0) | int(0) }}'
       unique_id: envoy_mqtt_battery
       qos: 0
       unit_of_measurement: "W"
@@ -552,148 +545,110 @@ __Note:__ Data is provided for three phases - unused phases have values of `0.0`
 # Example output for FW 7 and FW 8
 The resulting mqtt topic should look like this example:
 ```
-[
-    {
-        "eid": 704643328,
-        "timestamp": 1689409016,
-        "actEnergyDlvd": 0.063,
-        "actEnergyRcvd": 7939.998,
-        "apparentEnergy": 63680.783,
-        "reactEnergyLagg": 788.493,
-        "reactEnergyLead": 3.712,
-        "instantaneousDemand": 0.000,
-        "activePower": 0.000,
-        "apparentPower": 43.086,
-        "reactivePower": -0.000,
-        "pwrFactor": 0.000,
-        "voltage": 237.151,
-        "current": 0.254,
-        "freq": 50.000,
-        "channels": [
-            {
-                "eid": 1778385169,
-                "timestamp": 1689409016,
-                "actEnergyDlvd": 0.063,
-                "actEnergyRcvd": 7939.998,
-                "apparentEnergy": 63680.783,
-                "reactEnergyLagg": 788.493,
-                "reactEnergyLead": 3.712,
-                "instantaneousDemand": 0.000,
-                "activePower": 0.000,
-                "apparentPower": 43.086,
-                "reactivePower": -0.000,
-                "pwrFactor": 0.000,
-                "voltage": 237.151,
-                "current": 0.254,
-                "freq": 50.000
-            },
-            {
-                "eid": 1778385170,
-                "timestamp": 1689409016,
-                "actEnergyDlvd": 0.061,
-                "actEnergyRcvd": 10104.018,
-                "apparentEnergy": 31694.583,
-                "reactEnergyLagg": 763.996,
-                "reactEnergyLead": 7.749,
-                "instantaneousDemand": -0.097,
-                "activePower": -0.097,
-                "apparentPower": 2.779,
-                "reactivePower": 0.000,
-                "pwrFactor": 0.000,
-                "voltage": 9.994,
-                "current": 0.278,
-                "freq": 50.000
-            },
-            {
-                "eid": 1778385171,
-                "timestamp": 1689409016,
-                "actEnergyDlvd": 0.000,
-                "actEnergyRcvd": 20943.151,
-                "apparentEnergy": 22986.373,
-                "reactEnergyLagg": 762.634,
-                "reactEnergyLead": 0.866,
-                "instantaneousDemand": -0.431,
-                "activePower": -0.431,
-                "apparentPower": 2.006,
-                "reactivePower": -0.000,
-                "pwrFactor": -1.000,
-                "voltage": 10.346,
-                "current": 0.194,
-                "freq": 50.000
-            }
-        ]
+{
+    "connection": {
+        "mqtt_state": "connected",
+        "prov_state": "configured",
+        "auth_state": "ok",
+        "sc_stream": "enabled",
+        "sc_debug": "disabled"
     },
-    {
-        "eid": 704643584,
-        "timestamp": 1689409016,
-        "actEnergyDlvd": 3917484.219,
-        "actEnergyRcvd": 637541.835,
-        "apparentEnergy": 8370194.604,
-        "reactEnergyLagg": 113560.641,
-        "reactEnergyLead": 2299086.122,
-        "instantaneousDemand": -161.626,
-        "activePower": -161.626,
-        "apparentPower": 372.559,
-        "reactivePower": -212.953,
-        "pwrFactor": -0.431,
-        "voltage": 237.273,
-        "current": 1.571,
-        "freq": 50.000,
-        "channels": [
-            {
-                "eid": 1778385425,
-                "timestamp": 1689409016,
-                "actEnergyDlvd": 3917484.219,
-                "actEnergyRcvd": 637541.835,
-                "apparentEnergy": 8370194.604,
-                "reactEnergyLagg": 113560.641,
-                "reactEnergyLead": 2299086.122,
-                "instantaneousDemand": -161.626,
-                "activePower": -161.626,
-                "apparentPower": 372.559,
-                "reactivePower": -212.953,
-                "pwrFactor": -0.431,
-                "voltage": 237.273,
-                "current": 1.571,
-                "freq": 50.000
-            },
-            {
-                "eid": 1778385426,
-                "timestamp": 1689409016,
-                "actEnergyDlvd": 0.000,
-                "actEnergyRcvd": 18677.254,
-                "apparentEnergy": 10322.864,
-                "reactEnergyLagg": 798.595,
-                "reactEnergyLead": 0.000,
-                "instantaneousDemand": -0.222,
-                "activePower": -0.222,
-                "apparentPower": 0.898,
-                "reactivePower": 0.000,
-                "pwrFactor": 0.000,
-                "voltage": 3.024,
-                "current": 0.297,
-                "freq": 50.000
-            },
-            {
-                "eid": 1778385427,
-                "timestamp": 1689409016,
-                "actEnergyDlvd": 0.064,
-                "actEnergyRcvd": 27672.079,
-                "apparentEnergy": 115.734,
-                "reactEnergyLagg": 799.004,
-                "reactEnergyLead": 7.648,
-                "instantaneousDemand": -0.000,
-                "activePower": -0.000,
-                "apparentPower": 0.000,
-                "reactivePower": 0.000,
-                "pwrFactor": 0.000,
-                "voltage": 7.651,
-                "current": 0.000,
-                "freq": 50.000
-            }
-        ]
+    "meters": {
+        "last_update": 1729134820,
+        "soc": 0,
+        "main_relay_state": 1,
+        "gen_relay_state": 5,
+        "backup_bat_mode": 1,
+        "backup_soc": 30,
+        "is_split_phase": 0,
+        "phase_count": 1,
+        "enc_agg_soc": 0,
+        "enc_agg_energy": 0,
+        "acb_agg_soc": 0,
+        "acb_agg_energy": 0,
+        "pv": {
+            "agg_p_mw": 2596060,
+            "agg_s_mva": 2596060,
+            "agg_p_ph_a_mw": 2596060,
+            "agg_p_ph_b_mw": 0,
+            "agg_p_ph_c_mw": 0,
+            "agg_s_ph_a_mva": 2596060,
+            "agg_s_ph_b_mva": 0,
+            "agg_s_ph_c_mva": 0
+        },
+        "storage": {
+            "agg_p_mw": 0,
+            "agg_s_mva": 0,
+            "agg_p_ph_a_mw": 0,
+            "agg_p_ph_b_mw": 0,
+            "agg_p_ph_c_mw": 0,
+            "agg_s_ph_a_mva": 0,
+            "agg_s_ph_b_mva": 0,
+            "agg_s_ph_c_mva": 0
+        },
+        "grid": {
+            "agg_p_mw": -2071260,
+            "agg_s_mva": -2151485,
+            "agg_p_ph_a_mw": -2071260,
+            "agg_p_ph_b_mw": 0,
+            "agg_p_ph_c_mw": 0,
+            "agg_s_ph_a_mva": -2151485,
+            "agg_s_ph_b_mva": 0,
+            "agg_s_ph_c_mva": 0
+        },
+        "load": {
+            "agg_p_mw": 524800,
+            "agg_s_mva": 444575,
+            "agg_p_ph_a_mw": 524800,
+            "agg_p_ph_b_mw": 0,
+            "agg_p_ph_c_mw": 0,
+            "agg_s_ph_a_mva": 444575,
+            "agg_s_ph_b_mva": 0,
+            "agg_s_ph_c_mva": 0
+        },
+        "generator": {
+            "agg_p_mw": 0,
+            "agg_s_mva": 0,
+            "agg_p_ph_a_mw": 0,
+            "agg_p_ph_b_mw": 0,
+            "agg_p_ph_c_mw": 0,
+            "agg_s_ph_a_mva": 0,
+            "agg_s_ph_b_mva": 0,
+            "agg_s_ph_c_mva": 0
+        }
+    },
+    "tasks": {
+        "task_id": -1962092090,
+        "timestamp": 1729079744
+    },
+    "counters": {
+        "main_CfgLoad": 1,
+        "main_CfgChanged": 1,
+        "main_taskUpdate": 398,
+        "MqttClient_publish": 900,
+        "MqttClient_respond": 798,
+        "MqttClient_msgarrvd": 399,
+        "MqttClient_create": 17,
+        "MqttClient_setCallbacks": 17,
+        "MqttClient_connect": 17,
+        "MqttClient_connect_err": 9,
+        "MqttClient_connect_Err": 9,
+        "MqttClient_subscribe": 8,
+        "SSL_Keys_Create": 17,
+        "sc_hdlDataPub": 81096,
+        "sc_SendStreamCtrl": 4,
+        "sc_SendDemandRspCtrl": 1,
+        "rest_Status": 115778
+    },
+    "dry_contacts": {
+        "": {
+            "dry_contact_id": "",
+            "dry_contact_type": "",
+            "dry_contact_load_name": "",
+            "dry_contact_status": 3050996
+        }
     }
-]'
+}
 ```
 
 # Installation Method 3 - In a Docker Container along side your Home Assistant Installation
