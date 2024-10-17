@@ -695,6 +695,13 @@ The resulting mqtt topic should look like this example:
     }
 ]'
 ```
+
+# Installation Method 3 - In a Docker Container along side your Home Assistant Installation
+1. Clone this repository
+2. Update data/options.json with the values pertaining to your MQTT and Envoy Installations
+3. Run ```docker compose up -d --build --force-recreate```
+4. There is no step 4.
+
 ## Donation
 If this project helps you, you can give me a cup of coffee<br/>
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/vk2him)
