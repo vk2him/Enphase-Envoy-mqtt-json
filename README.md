@@ -242,7 +242,10 @@ value_template: '{{ value_json["production"]["ph-b"]["v"] }}'   # Phase B - Volt
 value_template: '{{ value_json["production"]["ph-a"]["p"] | int + value_json["production"]["ph-b"]["p"] | int + value_json["production"]["ph-c"]["p"] | int }}'  # Adding all three Production phases
 
 ```
+## `Templating examples` 
 
+ View this thread for Additional templating examples https://github.com/vk2him/Enphase-Envoy-mqtt-json/issues/42
+ 
 ## Real time power display using Power Wheel Card
 
 Here's the code if you'd like real-time visualisations of your power usage like this:
