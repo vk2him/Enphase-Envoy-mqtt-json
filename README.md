@@ -294,23 +294,34 @@ sensor:
     state_class: measurement
     device_class: power
 
-  - platform: template
-    sensors:
-      exporting:
-        friendly_name: "Current MQTT Energy Exporting"
-        value_template: "{{ [0, (states('sensor.mqtt_production') | int(0) - states('sensor.mqtt_consumption') | int(0))] | max }}"
-        unit_of_measurement: "W"
-        icon_template: mdi:flash
-      importing:
-        friendly_name: "Current MQTT Energy Importing"
-        value_template: "{{ [0, (states('sensor.mqtt_consumption') | int(0) - states('sensor.mqtt_production') | int(0))] | max }}"
-        unit_of_measurement: "W"
-        icon_template: mdi:flash
-      solarpower:
-        friendly_name: "Solar MQTT Power"
-        value_template: "{{ states('sensor.mqtt_production')}}"
-        unit_of_measurement: "W"
-        icon_template: mdi:flash
+### December 2025 - PLEASE NOTE !!!
+#
+#   If you have an existing template: entry in your configuration.yaml, add the following code WITHOUT the template: line as you are only allowed one template: in your configuration.yaml . Also ensure the added lines align correctly with other entries in that template: section
+
+template:
+  - sensor:
+    - unit_of_measurement: W
+      default_entity_id: sensor.exporting_mqtt
+      icon: mdi:flash
+      name: Current MQTT Energy Exporting
+      state: '{{ [0, (states(''sensor.mqtt_production'') | int(0) - states(''sensor.mqtt_consumption'')
+        | int(0))] | max }}'
+
+  - sensor:
+    - unit_of_measurement: W
+      default_entity_id: sensor.importing_mqtt
+      icon: mdi:flash
+      name: Current MQTT Energy Importing
+      state: '{{ [0, (states(''sensor.mqtt_consumption'') | int(0) - states(''sensor.mqtt_production'')
+        | int(0))] | max }}'
+
+  - sensor:
+    - unit_of_measurement: W
+      default_entity_id: sensor.solarpower_mqtt
+      icon: mdi:flash
+      name: Solar MQTT Power
+      state: '{{ states(''sensor.mqtt_production'')}}'
+
 ```
 
 # Installation Method 2 - as a stand-alone install on a Linux host
