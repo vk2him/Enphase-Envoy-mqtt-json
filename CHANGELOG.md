@@ -1,4 +1,4 @@
-v1.0.19 6th December 2025 - Update Documentation example for Home Assistant changes to template: formatting
+v1.0.20 6th December 2025 - Update Documentation example for Home Assistant changes to template: formatting
 
 v1.0.18 20th Sept 2024 - Better handling for Batteries allowing it to be optional 
 
