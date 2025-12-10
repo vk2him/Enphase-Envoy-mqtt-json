@@ -1,4 +1,4 @@
-# Python script: `Enphase Envoy mqtt json`
+# Enphase Envoy MQTT State Publisher
 
 A Python script that takes a real time json stream from an Enphase Envoy and publishes to a mqtt broker. This can then be used within Home Assistant or for other applications. The data updates at least once per second with negligible load on the Envoy.
 
