@@ -26,15 +26,39 @@ import xml.etree.ElementTree as ET
 #disable warnings of self signed certificate https
 urllib3.disable_warnings()
 import paho.mqtt.client as mqtt
-client = mqtt.Client()
+from paho.mqtt.enums import CallbackAPIVersion
+client = mqtt.Client(callback_api_version=CallbackAPIVersion.VERSION2)
 pp = pprint.PrettyPrinter()
 import xml.etree.ElementTree as ET
 import hashlib
 import os
 
 
-with open("data/options.json", "r") as f:
-    option_dict = json.load(f)
+# Load configuration from environment variables or options.json
+def load_config():
+    # Try environment variables first
+    if os.getenv("MQTT_HOST"):
+        return {
+            "MQTT_HOST": os.getenv("MQTT_HOST"),
+            "MQTT_PORT": os.getenv("MQTT_PORT", "1883"),
+            "MQTT_USER": os.getenv("MQTT_USER", ""),
+            "MQTT_PASSWORD": os.getenv("MQTT_PASSWORD", ""),
+            "MQTT_TOPIC": os.getenv("MQTT_TOPIC", "/envoy/json"),
+            "ENVOY_HOST": os.getenv("ENVOY_HOST"),
+            "ENVOY_USER": os.getenv("ENVOY_USER", ""),
+            "ENVOY_PASSWORD": os.getenv("ENVOY_PASSWORD", ""),
+            "ENVOY_USER_PASS": os.getenv("ENVOY_USER_PASS", ""),
+            "USE_FREEDS": os.getenv("USE_FREEDS", "False"),
+            "DEBUG": os.getenv("DEBUG", "False"),
+            "BATTERY_INSTALLED": os.getenv("BATTERY_INSTALLED", "False"),
+            "PUBLISH_INTERVAL": os.getenv("PUBLISH_INTERVAL", "0"),
+        }
+    # Fall back to options.json
+    else:
+        with open("data/options.json", "r") as f:
+            return json.load(f)
+
+option_dict = load_config()
 # print(option_dict["x"])
 
 ##
@@ -60,6 +84,7 @@ ENVOY_USER_PASS= option_dict["ENVOY_USER_PASS"]
 USE_FREEDS= option_dict["USE_FREEDS"]
 BATTERY_INSTALLED= option_dict["BATTERY_INSTALLED"]
 DEBUG= option_dict["DEBUG"]
+PUBLISH_INTERVAL= int(option_dict.get("PUBLISH_INTERVAL", "0"))  # Publish interval in seconds (default: 0 = no delay)
 MQTT_TOPIC_FREEDS = "Inverter/GridWatts"
 ####  End Settings - no changes after this line
 
@@ -175,7 +200,7 @@ if envoy_version != 5:
     #4: Refused – bad user name or password (MQTT v3.1 broker only)
     #5: Refused – not authorised (MQTT v3.1 broker only
 
-def on_connect(client, userdata, flags, rc):
+def on_connect(client, userdata, flags, rc, properties=None):
     """
     Handle connections (or failures) to the broker.
     This is called after the client has received a CONNACK message
@@ -218,7 +243,7 @@ def on_disconnect(client, userdata, rc) :
 def on_log(client, userdata, level, buf) :
     print("{0}".format(buf))
 
-client               = mqtt.Client()
+client               = mqtt.Client(callback_api_version=CallbackAPIVersion.VERSION2)
 client.on_connect    = on_connect
 #client.on_publish    = on_publish
 client.on_disconnect = on_disconnect
@@ -226,9 +251,9 @@ client.on_disconnect = on_disconnect
 #client.on_log       = on_log
 client.username_pw_set(MQTT_USER, MQTT_PASSWORD)
 if DEBUG: print(dt_string, 'Will wait for mqtt connect')
-wait: client.connect(MQTT_HOST,int(MQTT_PORT), 30)
+client.connect(MQTT_HOST,int(MQTT_PORT), 30)
 if DEBUG: print(dt_string, 'Finished waiting for mqtt connect')
-wait: client.loop_start()
+client.loop_start()
 
 ## Generation of Envoy password based on serial number, copy from https://github.com/sarnau/EnphaseEnergy/passwordCalc.py
 ## Credits to Markus Fritze https://github.com/sarnau/EnphaseEnergy
@@ -303,7 +328,7 @@ def scrape_stream_production():
                     if USE_FREEDS: 
                         json_string_freeds = json.dumps(round(stream.json()['consumption'][0]['wNow']))
                         client.publish(topic= MQTT_TOPIC_FREEDS , payload= json_string_freeds, qos=0 )
-                    time.sleep(1)
+                    time.sleep(PUBLISH_INTERVAL)
                 else:
                     print(dt_string, 'Invalid Json Response:', stream.content)
         except requests.exceptions.RequestException as e:
@@ -345,7 +370,7 @@ def scrape_stream_livedata():
                     if USE_FREEDS: 
                         json_string_freeds = json.dumps(round(stream.json()["meters"]["grid"]["agg_p_mw"]*0.001))
                         client.publish(topic= MQTT_TOPIC_FREEDS , payload= json_string_freeds, qos=0 )
-                    time.sleep(0.6)
+                    time.sleep(PUBLISH_INTERVAL)
             elif not is_json_valid(stream.content):
                 print(dt_string, 'Invalid Json Response:', stream.content)
 
@@ -382,7 +407,7 @@ def scrape_stream_meters():
                         json_string_freeds = json.dumps(round(stream.json()[1]["activePower"]))
                         if DEBUG: print(dt_string, 'Json freeds:', stream.json()[1]["activePower"])
                         client.publish(topic= MQTT_TOPIC_FREEDS , payload= json_string_freeds, qos=0 )
-                    time.sleep(0.6)
+                    time.sleep(PUBLISH_INTERVAL)
                 else:
                     print(dt_string, 'Invalid Json Response:', stream.content)
         except requests.exceptions.RequestException as e:
@@ -396,6 +421,7 @@ def scrape_stream():
     auth = HTTPDigestAuth(userName.decode(), ENVOY_PASSWORD)
     if DEBUG: print(dt_string, 'auth:',auth)
     marker = b'data: '
+    last_publish = 0
     while True:
         try:
             url = 'http://%s/stream/meter' % ENVOY_HOST
@@ -405,11 +431,14 @@ def scrape_stream():
             for line in stream.iter_lines():
 #                if DEBUG: print(dt_string, 'Line:', line)
                 if line.startswith(marker):
-                    if DEBUG: print(dt_string, 'Line marker:', line)
-                    data = json.loads(line.replace(marker, b''))
-#                    if DEBUG: print(dt_string, 'Data:', data)
-                    json_string = json.dumps(data)                                   
-                    client.publish(topic= MQTT_TOPIC , payload= json_string, qos=0 )
+                    current_time = time.time()
+                    if current_time - last_publish >= PUBLISH_INTERVAL:
+                        if DEBUG: print(dt_string, 'Line marker:', line)
+                        data = json.loads(line.replace(marker, b''))
+#                        if DEBUG: print(dt_string, 'Data:', data)
+                        json_string = json.dumps(data)                                   
+                        client.publish(topic= MQTT_TOPIC , payload= json_string, qos=0 )
+                        last_publish = current_time
         except requests.exceptions.RequestException as e:
             print(dt_string, ' Exception fetching stream data: %s' % e)
 

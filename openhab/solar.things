@@ -1,0 +1,52 @@
+// MQTT Bridge - adjust broker connection as needed
+Bridge mqtt:broker:mosquitto "Mosquitto MQTT Broker" [ 
+    host="your.mqtt.broker.ip",
+    port=1883,
+    username="your_mqtt_user",
+    password="your_mqtt_password",
+    clientID="openhab",
+    qos=0
+] {
+    // Enphase Envoy Solar Thing
+    Thing topic envoy "Enphase Envoy" @ "Solar" {
+        Channels:
+            // Raw JSON channel
+            Type string : rawJson "Raw JSON Data" [ stateTopic="/envoy/json" ]
+            
+            // Solar Production (PV)
+            Type number : solarProduction "Solar Production" [ 
+                stateTopic="/envoy/json",
+                transformationPattern="JSONPATH:$.meters.pv.agg_p_mw"
+            ]
+            
+            // Grid Power (positive = importing, negative = exporting)
+            Type number : gridPower "Grid Power" [ 
+                stateTopic="/envoy/json",
+                transformationPattern="JSONPATH:$.meters.grid.agg_p_mw"
+            ]
+            
+            // House Load/Consumption
+            Type number : houseLoad "House Load" [ 
+                stateTopic="/envoy/json",
+                transformationPattern="JSONPATH:$.meters.load.agg_p_mw"
+            ]
+            
+            // Storage (battery)
+            Type number : storagePower "Storage Power" [ 
+                stateTopic="/envoy/json",
+                transformationPattern="JSONPATH:$.meters.storage.agg_p_mw"
+            ]
+            
+            // Connection status
+            Type string : connectionStatus "Connection Status" [ 
+                stateTopic="/envoy/json",
+                transformationPattern="JSONPATH:$.connection.mqtt_state"
+            ]
+            
+            // Last update timestamp
+            Type number : lastUpdate "Last Update" [ 
+                stateTopic="/envoy/json",
+                transformationPattern="JSONPATH:$.meters.last_update"
+            ]
+    }
+}

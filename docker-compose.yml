@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  enphase-envoy:
+    build:
+      context: .
+    container_name: enphase-envoy-mqtt
+    restart: unless-stopped
+    
+    # Named volume for persistent token storage
+    volumes:
+      - enphase-data:/app/data:rw
+    
+    # Environment variables - configure via .env file or Portainer environment variables
+    environment:
+      - MQTT_HOST=${MQTT_HOST}
+      - MQTT_PORT=${MQTT_PORT:-1883}
+      - MQTT_USER=${MQTT_USER}
+      - MQTT_PASSWORD=${MQTT_PASSWORD}
+      - MQTT_TOPIC=${MQTT_TOPIC:-/envoy/json}
+      - ENVOY_HOST=${ENVOY_HOST}
+      - ENVOY_USER=${ENVOY_USER}
+      - ENVOY_PASSWORD=${ENVOY_PASSWORD}
+      - ENVOY_USER_PASS=${ENVOY_USER_PASS}
+      - USE_FREEDS=${USE_FREEDS:-False}
+      - DEBUG=${DEBUG:-False}
+      - BATTERY_INSTALLED=${BATTERY_INSTALLED:-False}
+      - PUBLISH_INTERVAL=${PUBLISH_INTERVAL:-0}
+    
+    # Network mode - use bridge for standard networking
+    network_mode: bridge
+    
+    # Logging configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    
+    # Health check (optional)
+    healthcheck:
+      test: ["CMD", "python", "-c", "import os; exit(0 if os.path.exists('/app/data/token.txt') else 1)"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    
+    # Labels for Portainer
+    labels:
+      - "com.portainer.description=Enphase Envoy to MQTT Bridge"
+      - "com.portainer.category=home-automation"
+
+# Named volume for token persistence
+volumes:
+  enphase-data:

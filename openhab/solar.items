@@ -1,0 +1,56 @@
+// Enphase Envoy Solar Items
+
+Group gSolar "Solar System" <sun>
+Group gSolarPower "Solar Power" <energy> (gSolar)
+Group gSolarEnergy "Solar Energy" <line> (gSolar)
+
+// Raw MQTT data
+String Solar_RawJson "Raw JSON [%s]" <text> (gSolar) { channel="mqtt:topic:mosquitto:envoy:rawJson" }
+
+// Raw milliwatt values from MQTT
+Number Solar_Production_mW "Solar Production Raw [%d mW]" <sun> (gSolar) { channel="mqtt:topic:mosquitto:envoy:solarProduction" }
+Number Solar_Grid_mW "Grid Power Raw [%d mW]" <energy> (gSolar) { channel="mqtt:topic:mosquitto:envoy:gridPower" }
+Number Solar_Load_mW "House Load Raw [%d mW]" <house> (gSolar) { channel="mqtt:topic:mosquitto:envoy:houseLoad" }
+Number Solar_Storage_mW "Storage Power Raw [%d mW]" <battery> (gSolar) { channel="mqtt:topic:mosquitto:envoy:storagePower" }
+String Solar_ConnectionStatus "Connection Status [%s]" <network> (gSolar) { channel="mqtt:topic:mosquitto:envoy:connectionStatus" }
+Number Solar_LastUpdate "Last Update [%d]" <time> (gSolar) { channel="mqtt:topic:mosquitto:envoy:lastUpdate" }
+
+// Converted Power values in Watts (calculated via rules)
+Number:Power Solar_Production "Solar Production [%.0f W]" <sun> (gSolar, gSolarPower)
+Number:Power Solar_Grid "Grid Power [%.0f W]" <energy> (gSolar, gSolarPower)
+Number:Power Solar_Load "House Consumption [%.0f W]" <house> (gSolar, gSolarPower)
+
+// Converted Power values in kW
+Number Solar_Production_kW "Solar Production [%.2f kW]" <sun> (gSolar, gSolarPower)
+Number Solar_Grid_kW "Grid Power [%.2f kW]" <energy> (gSolar, gSolarPower)
+Number Solar_Load_kW "House Consumption [%.2f kW]" <house> (gSolar, gSolarPower)
+
+// Grid Import/Export separate items
+Number:Power Solar_GridImport "Grid Import [%.0f W]" <energy> (gSolar, gSolarPower)
+Number:Power Solar_GridExport "Grid Export [%.0f W]" <energy> (gSolar, gSolarPower)
+
+// Solar self-consumption
+Number Solar_SelfConsumption_Percent "Self Consumption [%.0f %%]" <pie> (gSolar)
+Number:Power Solar_SelfConsumption "Self Consumption Power [%.0f W]" <energy> (gSolar, gSolarPower)
+
+// Energy counters (daily totals)
+Number:Energy Solar_Production_Today "Solar Production Today [%.2f kWh]" <sun> (gSolar, gSolarEnergy)
+Number:Energy Solar_Consumption_Today "House Consumption Today [%.2f kWh]" <house> (gSolar, gSolarEnergy)
+Number:Energy Solar_GridImport_Today "Grid Import Today [%.2f kWh]" <energy> (gSolar, gSolarEnergy)
+Number:Energy Solar_GridExport_Today "Grid Export Today [%.2f kWh]" <energy> (gSolar, gSolarEnergy)
+
+// Status items
+Switch Solar_IsProducing "Solar Producing" <sun> (gSolar)
+Switch Solar_IsExporting "Exporting to Grid" <energy> (gSolar)
+Switch Solar_IsImporting "Importing from Grid" <energy> (gSolar)
+
+// Peak values for the day
+Number:Power Solar_Production_Peak "Peak Production Today [%.0f W]" <sun> (gSolar)
+Number:Power Solar_Consumption_Peak "Peak Consumption Today [%.0f W]" <house> (gSolar)
+
+// Cost savings (configure your electricity rate)
+Number Solar_Savings_Today "Savings Today [%.2f]" <price> (gSolar)
+
+// System health
+DateTime Solar_LastUpdateTime "Last Update [%1$tH:%1$tM:%1$tS]" <time> (gSolar)
+Number Solar_DataAge "Data Age [%d seconds]" <time> (gSolar)

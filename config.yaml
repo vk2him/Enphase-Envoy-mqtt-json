@@ -22,6 +22,7 @@ options:
   USE_FREEDS: False
   BATTERY_INSTALLED: False
   DEBUG: False
+  PUBLISH_INTERVAL: 0
 
 schema:
   MQTT_HOST: str
@@ -36,3 +37,4 @@ schema:
   USE_FREEDS: bool
   BATTERY_INSTALLED: bool
   DEBUG: bool
+  PUBLISH_INTERVAL: int

@@ -1,14 +1,19 @@
-ARG BUILD_FROM
+ARG BUILD_FROM=python:3.12-alpine
 FROM $BUILD_FROM
 
-# Install requirements for add-on
+# Set working directory
+WORKDIR /app
 
-RUN apk add --no-cache python3 py3-requests py3-pip py3-paho-mqtt
+# Install requirements
+RUN apk add --no-cache python3 py3-pip && \
+    pip install --no-cache-dir paho-mqtt requests urllib3
 
-# Copy data for add-on
-COPY run.sh /
-COPY envoy_to_mqtt_json.py /
+# Copy application files
+COPY envoy_to_mqtt_json.py .
+COPY run.sh /run.sh
 
-RUN chmod a+x /run.sh
+# Create data directory
+RUN mkdir -p /app/data && chmod a+x /run.sh
 
-CMD [ "/run.sh" ]
+# For standalone use, run directly; for HA addon, use run.sh
+CMD [ "python3", "-u", "envoy_to_mqtt_json.py" ]

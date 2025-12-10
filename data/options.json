@@ -1,14 +1,15 @@
 {
-  "MQTT_HOST": "ip.address.of.homeasistant",
-  "MQTT_USER": "mqtt.user",
-  "MQTT_PASSWORD": "mqtt.password",
+  "MQTT_HOST": "your.mqtt.broker.ip",
+  "MQTT_USER": "your_mqtt_user",
+  "MQTT_PASSWORD": "your_mqtt_password",
   "MQTT_PORT": "1883",
   "ENVOY_HOST": "envoy.local",
-  "ENVOY_USER": "secret",
-  "ENVOY_PASSWORD": "secret",
-  "ENVOY_USER_PASS": "secret",
+  "ENVOY_USER": "your.enphase.email@example.com",
+  "ENVOY_PASSWORD": "legacy_field",
+  "ENVOY_USER_PASS": "your_enphase_password",
   "USE_FREEDS": "False",
   "MQTT_TOPIC": "/envoy/json",
   "DEBUG": "False",
-  "BATTERY_INSTALLED": "False"
-  }
+  "BATTERY_INSTALLED": "False",
+  "PUBLISH_INTERVAL": "0"
+}
