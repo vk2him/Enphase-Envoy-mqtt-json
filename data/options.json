@@ -1,15 +1,15 @@
 {
-  "MQTT_HOST": "10.0.0.7",
-  "MQTT_USER": "shelly",
-  "MQTT_PASSWORD": "shelly",
+  "MQTT_HOST": "your.mqtt.broker.ip",
+  "MQTT_USER": "your_mqtt_user",
+  "MQTT_PASSWORD": "your_mqtt_password",
   "MQTT_PORT": "1883",
-  "ENVOY_HOST": "10.0.0.241",
-  "ENVOY_USER": "jonathan@jonathangiles.net",
-  "ENVOY_PASSWORD": "2e79e47g",
-  "ENVOY_USER_PASS": "Q22UuVoCVSqc",
+  "ENVOY_HOST": "envoy.local",
+  "ENVOY_USER": "your.enphase.email@example.com",
+  "ENVOY_PASSWORD": "legacy_field",
+  "ENVOY_USER_PASS": "your_enphase_password",
   "USE_FREEDS": "False",
-  "MQTT_TOPIC": "/solar/albertstreet/json",
+  "MQTT_TOPIC": "/envoy/json",
   "DEBUG": "False",
   "BATTERY_INSTALLED": "False",
-  "PUBLISH_INTERVAL": "1"
-  }
+  "PUBLISH_INTERVAL": "0"
+}
