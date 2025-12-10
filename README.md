@@ -8,6 +8,24 @@ Now works with 7.x.x and 8.x.x firmware - thanks to @helderd
 
 **NOTE - this is a breaking change to your templates if you enable the battery Option**
 
+## Table of Contents
+
+- [Requirements](#requirements)
+- [Configuration Variables](#configuration-variables)
+- [Installation Methods](#installation-methods)
+  - [Method 1: Home Assistant Addon](#installation-method-1---as-a-home-assistant-addon)
+  - [Method 2: Docker/Portainer](#installation-method-2---using-docker-and-portainer)
+  - [Method 3: Standalone Linux](#installation-method-3---as-a-stand-alone-install-on-a-linux-host)
+  - [Method 4: Standalone macOS](#run-automatically-on-macos-as-a-launchagent)
+- [Home Assistant Configuration Examples](#configurationyaml-configuration-examples-for-fw-5)
+  - [Firmware 5](#configurationyaml-configuration-examples-for-fw-5)
+  - [Firmware 7/8](#configurationyaml-configuration-examples-for-fw-7-and-fw-8)
+  - [Firmware 8 with Batteries](#configurationyaml-configuration-examples-for-fw-8-with-batteries)
+- [Example Output](#example-output-for-fw-5)
+- [Power Wheel Card Example](#real-time-power-display-using-power-wheel-card)
+- [OpenHAB Integration](#openhab-integration)
+- [Additional Resources](#additional-resources)
+
 # Requirements
 
 - An Enphase Envoy running 5.x.x, 7.x.x or 8.x.x firmware.
@@ -342,7 +360,7 @@ template:
 
 ```
 
-# Installation Method 2 - as a stand-alone install on a Linux host
+# Installation Method 3 - as a stand-alone install on a Linux host
 
 - Copy to you Linux host in the directory of your choosing 
 `git clone https://github.com/vk2him/Enphase-Envoy-mqtt-json`
@@ -827,7 +845,30 @@ The resulting mqtt topic should look like this example:
     }
 ]'
 ```
+
+# OpenHAB Integration
+
+For OpenHAB users, complete integration files are available in the `openhab/` directory:
+
+- **solar.things** - MQTT Thing definition with channels for all Envoy data points
+- **solar.items** - 40+ items including power, energy, and calculated values
+- **solar.rules** - Automation rules for calculations, alerts, and smart home integration
+- **solar.sitemap** - UI configuration for displaying solar data
+- **README_OPENHAB.md** - Complete setup instructions
+
+See [openhab/README_OPENHAB.md](openhab/README_OPENHAB.md) for detailed installation and configuration instructions.
+
+# Additional Resources
+
+- **[QUICKSTART.md](QUICKSTART.md)** - Quick reference guide for Docker/Portainer deployment
+- **[openhab/](openhab/)** - Complete OpenHAB integration with Things, Items, Rules, and Sitemap
+- **Configuration Files:**
+  - `config.yaml` - Home Assistant addon configuration
+  - `docker-compose.yml` - Docker Compose configuration
+  - `.env.example` - Environment variable template
+
 ## Donation
+
 If this project helps you, you can give me a cup of coffee<br/>
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/vk2him)
 <br/><br/>
