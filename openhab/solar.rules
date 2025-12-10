@@ -1,0 +1,238 @@
+// Enphase Envoy Solar Rules
+
+import java.time.ZonedDateTime
+import java.time.temporal.ChronoUnit
+
+val Number ELECTRICITY_RATE = 0.30 // Set your electricity rate per kWh
+
+rule "Convert milliwatts to watts"
+when
+    Item Solar_Production_mW changed or
+    Item Solar_Grid_mW changed or
+    Item Solar_Load_mW changed
+then
+    // Convert milliwatts to watts
+    if (Solar_Production_mW.state instanceof Number) {
+        val production = (Solar_Production_mW.state as Number).floatValue / 1000
+        Solar_Production.postUpdate(production)
+        Solar_Production_kW.postUpdate(production / 1000)
+        
+        // Update peak production
+        if (Solar_Production_Peak.state === NULL || production > (Solar_Production_Peak.state as Number).floatValue) {
+            Solar_Production_Peak.postUpdate(production)
+        }
+        
+        // Check if producing
+        Solar_IsProducing.postUpdate(if (production > 10) ON else OFF)
+    }
+    
+    if (Solar_Grid_mW.state instanceof Number) {
+        val grid = (Solar_Grid_mW.state as Number).floatValue / 1000
+        Solar_Grid.postUpdate(grid)
+        Solar_Grid_kW.postUpdate(grid / 1000)
+        
+        // Separate import and export
+        if (grid > 0) {
+            Solar_GridImport.postUpdate(grid)
+            Solar_GridExport.postUpdate(0)
+            Solar_IsImporting.postUpdate(ON)
+            Solar_IsExporting.postUpdate(OFF)
+        } else {
+            Solar_GridImport.postUpdate(0)
+            Solar_GridExport.postUpdate(Math.abs(grid))
+            Solar_IsImporting.postUpdate(OFF)
+            Solar_IsExporting.postUpdate(ON)
+        }
+    }
+    
+    if (Solar_Load_mW.state instanceof Number) {
+        val load = (Solar_Load_mW.state as Number).floatValue / 1000
+        Solar_Load.postUpdate(load)
+        Solar_Load_kW.postUpdate(load / 1000)
+        
+        // Update peak consumption
+        if (Solar_Consumption_Peak.state === NULL || load > (Solar_Consumption_Peak.state as Number).floatValue) {
+            Solar_Consumption_Peak.postUpdate(load)
+        }
+    }
+end
+
+rule "Calculate self-consumption"
+when
+    Item Solar_Production changed or
+    Item Solar_Load changed
+then
+    if (Solar_Production.state instanceof Number && Solar_Load.state instanceof Number) {
+        val production = (Solar_Production.state as Number).floatValue
+        val load = (Solar_Load.state as Number).floatValue
+        
+        // Self consumption is the minimum of production and load
+        val selfConsumption = Math.min(production, load)
+        Solar_SelfConsumption.postUpdate(selfConsumption)
+        
+        // Calculate percentage
+        if (production > 0) {
+            val percentage = (selfConsumption / production) * 100
+            Solar_SelfConsumption_Percent.postUpdate(percentage)
+        } else {
+            Solar_SelfConsumption_Percent.postUpdate(0)
+        }
+    }
+end
+
+rule "Calculate daily energy totals"
+when
+    Item Solar_Production changed or
+    Item Solar_Load changed or
+    Item Solar_GridImport changed or
+    Item Solar_GridExport changed
+then
+    // This runs every time power changes to accumulate energy
+    // Energy (kWh) = Power (W) * Time (hours) / 1000
+    // Assuming updates every ~1 second, this is approximate
+    
+    if (Solar_Production.state instanceof Number) {
+        val productionWh = (Solar_Production.state as Number).floatValue / 3600 // Convert W to Wh for 1 second
+        val currentTotal = if (Solar_Production_Today.state instanceof Number) 
+            (Solar_Production_Today.state as Number).floatValue 
+        else 
+            0
+        Solar_Production_Today.postUpdate(currentTotal + productionWh / 1000) // Convert to kWh
+    }
+    
+    if (Solar_Load.state instanceof Number) {
+        val loadWh = (Solar_Load.state as Number).floatValue / 3600
+        val currentTotal = if (Solar_Consumption_Today.state instanceof Number) 
+            (Solar_Consumption_Today.state as Number).floatValue 
+        else 
+            0
+        Solar_Consumption_Today.postUpdate(currentTotal + loadWh / 1000)
+    }
+    
+    if (Solar_GridImport.state instanceof Number) {
+        val importWh = (Solar_GridImport.state as Number).floatValue / 3600
+        val currentTotal = if (Solar_GridImport_Today.state instanceof Number) 
+            (Solar_GridImport_Today.state as Number).floatValue 
+        else 
+            0
+        Solar_GridImport_Today.postUpdate(currentTotal + importWh / 1000)
+    }
+    
+    if (Solar_GridExport.state instanceof Number) {
+        val exportWh = (Solar_GridExport.state as Number).floatValue / 3600
+        val currentTotal = if (Solar_GridExport_Today.state instanceof Number) 
+            (Solar_GridExport_Today.state as Number).floatValue 
+        else 
+            0
+        Solar_GridExport_Today.postUpdate(currentTotal + exportWh / 1000)
+    }
+end
+
+rule "Calculate cost savings"
+when
+    Item Solar_Production_Today changed or
+    Item Solar_GridExport_Today changed
+then
+    if (Solar_Production_Today.state instanceof Number) {
+        val production = (Solar_Production_Today.state as Number).floatValue
+        val savings = production * ELECTRICITY_RATE
+        Solar_Savings_Today.postUpdate(savings)
+    }
+end
+
+rule "Reset daily counters at midnight"
+when
+    Time cron "0 0 0 * * ?" // Midnight every day
+then
+    Solar_Production_Today.postUpdate(0)
+    Solar_Consumption_Today.postUpdate(0)
+    Solar_GridImport_Today.postUpdate(0)
+    Solar_GridExport_Today.postUpdate(0)
+    Solar_Production_Peak.postUpdate(0)
+    Solar_Consumption_Peak.postUpdate(0)
+    Solar_Savings_Today.postUpdate(0)
+    logInfo("Solar", "Daily solar counters reset")
+end
+
+rule "Update last update time"
+when
+    Item Solar_LastUpdate changed
+then
+    if (Solar_LastUpdate.state instanceof Number) {
+        val timestamp = (Solar_LastUpdate.state as Number).longValue * 1000
+        Solar_LastUpdateTime.postUpdate(new DateTimeType(ZonedDateTime.ofInstant(java.time.Instant.ofEpochMilli(timestamp), ZoneId.systemDefault())))
+        
+        // Calculate data age
+        val now = ZonedDateTime.now()
+        val updateTime = ZonedDateTime.ofInstant(java.time.Instant.ofEpochMilli(timestamp), ZoneId.systemDefault())
+        val ageSeconds = ChronoUnit.SECONDS.between(updateTime, now)
+        Solar_DataAge.postUpdate(ageSeconds)
+    }
+end
+
+rule "Alert on stale data"
+when
+    Item Solar_DataAge changed
+then
+    if (Solar_DataAge.state instanceof Number) {
+        val age = (Solar_DataAge.state as Number).intValue
+        
+        // Alert if data is more than 5 minutes old
+        if (age > 300) {
+            logWarn("Solar", "Envoy data is stale! Last update was " + age + " seconds ago")
+            // You could send a notification here
+        }
+    }
+end
+
+// Example smart automation rules
+
+rule "Turn on water heater when exporting excess solar"
+when
+    Item Solar_GridExport changed
+then
+    if (Solar_GridExport.state instanceof Number) {
+        val export = (Solar_GridExport.state as Number).floatValue
+        
+        // If exporting more than 2kW, could power water heater
+        if (export > 2000) {
+            logInfo("Solar", "Exporting " + export + "W - good time to use hot water")
+            // Example: sendCommand(WaterHeater_Switch, ON)
+        }
+    }
+end
+
+rule "Alert when solar production drops unexpectedly"
+when
+    Item Solar_Production changed
+then
+    // Check if it's daytime (between 8am and 4pm)
+    val hour = now.getHour()
+    
+    if (hour >= 8 && hour <= 16) {
+        if (Solar_Production.state instanceof Number) {
+            val production = (Solar_Production.state as Number).floatValue
+            
+            // If production drops below 500W during daylight, might indicate an issue
+            if (production < 500 && Solar_IsProducing.state == OFF) {
+                logWarn("Solar", "Low solar production during daylight hours: " + production + "W")
+                // You could send a notification here
+            }
+        }
+    }
+end
+
+rule "Log high consumption events"
+when
+    Item Solar_Load changed
+then
+    if (Solar_Load.state instanceof Number) {
+        val load = (Solar_Load.state as Number).floatValue
+        
+        // Log when consumption exceeds 8kW
+        if (load > 8000) {
+            logInfo("Solar", "High power consumption detected: " + load + "W")
+            // You could identify which devices are running
+        }
+    }
+end

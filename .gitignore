@@ -1,2 +1,19 @@
 .idea
 /data
+
+# Environment files with secrets
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+
+# macOS
+.DS_Store
+
+# IDE
+.vscode/

@@ -1,0 +1,56 @@
+# .dockerignore
+# Exclude files that don't need to be in the Docker image
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Documentation
+README.md
+CHANGELOG.md
+LICENSE
+*.md
+
+# Images and assets
+images/
+*.png
+*.jpg
+*.jpeg
+
+# OpenHAB configs (not needed in container)
+openhab/
+
+# Home Assistant configs
+config.yaml
+repository.yaml
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Mac
+.DS_Store
+
+# Don't exclude these - they're needed:
+# envoy_to_mqtt_json.py
+# requirements.txt
+# data/ directory (will be mounted as volume)

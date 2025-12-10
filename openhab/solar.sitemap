@@ -1,0 +1,60 @@
+sitemap solar label="Solar System" {
+    Frame label="Current Power" {
+        Text item=Solar_Production valuecolor=[Solar_Production>0="green"] {
+            Frame label="Solar Production Details" {
+                Text item=Solar_Production
+                Text item=Solar_Production_kW
+                Text item=Solar_IsProducing
+                Text item=Solar_Production_Peak
+            }
+        }
+        
+        Text item=Solar_Load valuecolor=[Solar_Load>5000="red", Solar_Load>3000="orange", Solar_Load>0="green"] {
+            Frame label="House Consumption Details" {
+                Text item=Solar_Load
+                Text item=Solar_Load_kW
+                Text item=Solar_Consumption_Peak
+            }
+        }
+        
+        Text item=Solar_Grid valuecolor=[Solar_Grid<0="green", Solar_Grid>0="red"] {
+            Frame label="Grid Details" {
+                Text item=Solar_Grid
+                Text item=Solar_Grid_kW
+                Text item=Solar_GridImport
+                Text item=Solar_GridExport
+                Text item=Solar_IsImporting
+                Text item=Solar_IsExporting
+            }
+        }
+    }
+    
+    Frame label="Energy Flow" {
+        Text item=Solar_SelfConsumption {
+            Frame label="Self Consumption" {
+                Text item=Solar_SelfConsumption
+                Text item=Solar_SelfConsumption_Percent
+            }
+        }
+    }
+    
+    Frame label="Today's Energy" {
+        Text item=Solar_Production_Today icon="sun"
+        Text item=Solar_Consumption_Today icon="house"
+        Text item=Solar_GridImport_Today icon="energy" valuecolor=[>0="red"]
+        Text item=Solar_GridExport_Today icon="energy" valuecolor=[>0="green"]
+        Text item=Solar_Savings_Today icon="price"
+    }
+    
+    Frame label="System Status" {
+        Text item=Solar_ConnectionStatus valuecolor=[=="connected"="green", =="disconnected"="red"]
+        Text item=Solar_LastUpdateTime
+        Text item=Solar_DataAge valuecolor=[<60="green", <300="orange", >=300="red"]
+    }
+    
+    Frame label="Charts" {
+        Chart item=gSolarPower period=h refresh=60000
+        Chart item=gSolarPower period=D refresh=300000
+        Chart item=gSolarEnergy period=W refresh=600000
+    }
+}
