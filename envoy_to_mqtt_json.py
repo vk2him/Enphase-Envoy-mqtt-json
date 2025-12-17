@@ -81,7 +81,8 @@ def is_json_valid(json_data):
     return True
 
 # Get info
-url_info ='http://%s/info' % ENVOY_HOST
+#url_info ='http://%s/info' % ENVOY_HOST
+url_info ='https://%s/info' % ENVOY_HOST
 response_info = requests.get(url_info, verify=False)
 if response_info.status_code != 200:
     print(dt_string,'Failed connect to Envoy to get info got ', response_info, 'Verify URL', url_info )
@@ -285,7 +286,8 @@ def scrape_stream_production():
     ENVOY_TOKEN=token_gen(ENVOY_TOKEN)
     while True:
         try:
-            url = 'http://%s/production.json' % ENVOY_HOST
+            #url = 'http://%s/production.json' % ENVOY_HOST
+            url = 'https://%s/production.json' % ENVOY_HOST
             headers = {"Authorization": "Bearer " + ENVOY_TOKEN}
             stream = requests.get(url, timeout=5, verify=False, headers=headers)
             if stream.status_code == 401:
@@ -398,7 +400,8 @@ def scrape_stream():
     marker = b'data: '
     while True:
         try:
-            url = 'http://%s/stream/meter' % ENVOY_HOST
+            #url = 'http://%s/stream/meter' % ENVOY_HOST
+            url = 'https://%s/stream/meter' % ENVOY_HOST
             if DEBUG: print(dt_string, 'Url:', url)
             stream = requests.get(url, auth=auth, stream=True, timeout=5)
 #            if DEBUG: print(dt_string, 'stream:', stream.content)
