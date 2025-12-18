@@ -55,6 +55,7 @@ MQTT_TOPIC = option_dict["MQTT_TOPIC"]  # Note - if you change this topic, you'l
 MQTT_USER = option_dict["MQTT_USER"]     # As described in the Documentation for the HA Mosquito broker add-on, the MQTT user/password are the user setup for mqtt
 MQTT_PASSWORD = option_dict["MQTT_PASSWORD"]    # If you use an external broker, use those details instead
 ENVOY_HOST = option_dict["ENVOY_HOST"]  # ** Enter envoy-s IP. Note - use FQDN and not envoy.local if issues connecting 
+ENVOY_USE_HTTPS= option_dict["ENVOY_USE_HTTPS"]
 ENVOY_USER= option_dict["ENVOY_USER"]
 ENVOY_USER_PASS= option_dict["ENVOY_USER_PASS"]
 USE_FREEDS= option_dict["USE_FREEDS"]
@@ -81,8 +82,11 @@ def is_json_valid(json_data):
     return True
 
 # Get info
-#url_info ='http://%s/info' % ENVOY_HOST
-url_info ='https://%s/info' % ENVOY_HOST
+if ENVOY_USE_HTTPS:
+    url_info ='https://%s/info' % ENVOY_HOST
+else:
+    url_info ='http://%s/info' % ENVOY_HOST
+
 response_info = requests.get(url_info, verify=False)
 if response_info.status_code != 200:
     print(dt_string,'Failed connect to Envoy to get info got ', response_info, 'Verify URL', url_info )
@@ -286,8 +290,10 @@ def scrape_stream_production():
     ENVOY_TOKEN=token_gen(ENVOY_TOKEN)
     while True:
         try:
-            #url = 'http://%s/production.json' % ENVOY_HOST
-            url = 'https://%s/production.json' % ENVOY_HOST
+            if ENVOY_USE_HTTPS:
+                url = 'https://%s/production.json' % ENVOY_HOST
+            else:
+                url = 'http://%s/production.json' % ENVOY_HOST
             headers = {"Authorization": "Bearer " + ENVOY_TOKEN}
             stream = requests.get(url, timeout=5, verify=False, headers=headers)
             if stream.status_code == 401:
@@ -400,8 +406,10 @@ def scrape_stream():
     marker = b'data: '
     while True:
         try:
-            #url = 'http://%s/stream/meter' % ENVOY_HOST
-            url = 'https://%s/stream/meter' % ENVOY_HOST
+            if ENVOY_USE_HTTPS:
+                url = 'https://%s/stream/meter' % ENVOY_HOST
+            else:
+                url = 'http://%s/stream/meter' % ENVOY_HOST
             if DEBUG: print(dt_string, 'Url:', url)
             stream = requests.get(url, auth=auth, stream=True, timeout=5)
 #            if DEBUG: print(dt_string, 'stream:', stream.content)
