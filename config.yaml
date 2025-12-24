@@ -19,6 +19,7 @@ options:
   ENVOY_PASSWORD: enter.envoy.password
   ENVOY_USER: enter.enphase.userid@email.com
   ENVOY_USER_PASS: enter.enphase.password
+  ENVOY_USE_HTTPS: false
   USE_FREEDS: False
   BATTERY_INSTALLED: False
   DEBUG: False
@@ -33,6 +34,7 @@ schema:
   ENVOY_PASSWORD: password
   ENVOY_USER: str
   ENVOY_USER_PASS: password
+  ENVOY_USE_HTTPS: bool
   USE_FREEDS: bool
   BATTERY_INSTALLED: bool
   DEBUG: bool
