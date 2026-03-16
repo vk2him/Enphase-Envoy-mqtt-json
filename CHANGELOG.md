@@ -1,10 +1,6 @@
-v1.0.23 12th March 2026 - Add SSE (/stream/meter) support for real-time updates on all firmware versions. SSE is now the default mode. Added examples/ directory with separate Home Assistant and OpenHAB configs for SSE and polling modes.
-
 v1.0.22 10th January 2026 - Change Boolean settings in options.json for use in standalone
 
 v1.0.21 24th December 2025 - Add option to fully use https endpoints to cater for new firmware D8.3.5286 (da7504) and later thanks to https://github.com/joergbattermann
-
-v1.0.21 11th December 2025 - Improved Docker deployment support, added docs for quick start / portainer deployment, added publishing interval option, and added OpenHab samples.
 
 v1.0.20 6th December 2025 - Update Documentation example for Home Assistant changes to template: formatting
 
