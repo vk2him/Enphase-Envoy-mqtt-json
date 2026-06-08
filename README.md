@@ -329,7 +329,33 @@ template:
 
 - Copy to you Linux host in the directory of your choosing 
 `git clone https://github.com/vk2him/Enphase-Envoy-mqtt-json`
-- Configure settings in `/data/options.json`
+- Configure settings in `data/options.json`, **or** provide them as environment variables (see below)
+
+### Configuration via environment variables
+
+Every setting can be supplied as an environment variable of the same name. This
+is handy for stand-alone, systemd or container deployments where you would
+rather not edit `data/options.json`. Environment variables take precedence over
+values in `data/options.json`, and when no `data/options.json` exists the script
+runs entirely from the environment.
+
+| Variable | Default | Description |
+| --- | --- | --- |
+| `MQTT_HOST` | _(required)_ | MQTT broker host |
+| `MQTT_PORT` | `1883` | MQTT broker port |
+| `MQTT_TOPIC` | `envoy/json` | Topic to publish Envoy JSON to |
+| `MQTT_USER` | _(none)_ | MQTT username |
+| `MQTT_PASSWORD` | _(none)_ | MQTT password |
+| `ENVOY_HOST` | `envoy.local` | Envoy IP/hostname |
+| `ENVOY_USE_HTTPS` | `false` | Use HTTPS endpoints (firmware D8.3.5286+) |
+| `ENVOY_USER` | _(none)_ | Enphase Enlighten account email (FW7/8 token) |
+| `ENVOY_USER_PASS` | _(none)_ | Enphase Enlighten account password (FW7/8 token) |
+| `USE_FREEDS` | `false` | Publish a FREEDS grid-watts topic |
+| `BATTERY_INSTALLED` | `false` | Use the battery live-data endpoint |
+| `DEBUG` | `false` | Verbose debug logging |
+
+Booleans accept `true` or `false`. The path to the options file can be
+overridden with `OPTIONS_FILE`.
 
 __Note:__
 
