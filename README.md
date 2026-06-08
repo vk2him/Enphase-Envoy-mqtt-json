@@ -448,6 +448,41 @@ To stop it running use
 launchctl unload ~/Library/LaunchAgents/envoy.plist
 ```
 
+# Installation Method 3 - as a stand-alone Docker container
+
+A `Dockerfile.standalone` is included that runs the script without Home
+Assistant, bashio, s6 or systemd. An image is published to the GitHub Container
+Registry by the `Build stand-alone image` workflow.
+
+Put your `options.json` (see the example in `data/options.json`) in a directory
+on the host and bind-mount it to `/app/data`. The Envoy token is cached in the
+same directory, so it persists across restarts.
+
+### Using the pre-built image
+
+```
+docker run -d --name envoy-mqtt --restart unless-stopped \
+  -v /path/to/envoy-config:/app/data \
+  ghcr.io/vk2him/enphase-envoy-mqtt-json:latest
+```
+
+### docker-compose
+
+```yaml
+services:
+  envoy-mqtt:
+    image: ghcr.io/vk2him/enphase-envoy-mqtt-json:latest
+    restart: unless-stopped
+    volumes:
+      - ./envoy-config:/app/data
+```
+
+### Building it yourself
+
+```
+docker build -f Dockerfile.standalone -t enphase-envoy-mqtt-json .
+```
+
 # Example output for FW 5
 The resulting mqtt topic should look like this example:
 ```
