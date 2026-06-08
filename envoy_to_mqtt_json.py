@@ -33,9 +33,24 @@ import hashlib
 import os
 
 
-with open("data/options.json", "r") as f:
-    option_dict = json.load(f)
-# print(option_dict["x"])
+# Settings come from environment variables, then data/options.json (optional).
+options_file = os.environ.get("OPTIONS_FILE", "data/options.json")
+if os.path.exists(options_file):
+    with open(options_file, "r") as f:
+        option_dict = json.load(f)
+else:
+    option_dict = {}
+
+
+def get_option(key, default=None):
+    return os.environ.get(key, option_dict.get(key, default))
+
+
+def get_bool_option(key, default=False):
+    value = get_option(key, default)
+    if isinstance(value, bool):
+        return value
+    return str(value).strip().lower() == "true"
 
 ##
 
@@ -49,18 +64,18 @@ dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
 # I use the Home Assistant Mosquito broker add-on but you can use an external one if needed
 # python
 
-MQTT_HOST = option_dict["MQTT_HOST"]  # Note - if issues connecting, use FQDN for broker IP instead of hassio.local
-MQTT_PORT = option_dict["MQTT_PORT"]
-MQTT_TOPIC = option_dict["MQTT_TOPIC"]  # Note - if you change this topic, you'll need to also change the value_templates in configuration.yaml
-MQTT_USER = option_dict["MQTT_USER"]     # As described in the Documentation for the HA Mosquito broker add-on, the MQTT user/password are the user setup for mqtt
-MQTT_PASSWORD = option_dict["MQTT_PASSWORD"]    # If you use an external broker, use those details instead
-ENVOY_HOST = option_dict["ENVOY_HOST"]  # ** Enter envoy-s IP. Note - use FQDN and not envoy.local if issues connecting 
-ENVOY_USE_HTTPS= option_dict["ENVOY_USE_HTTPS"]
-ENVOY_USER= option_dict["ENVOY_USER"]
-ENVOY_USER_PASS= option_dict["ENVOY_USER_PASS"]
-USE_FREEDS= option_dict["USE_FREEDS"]
-BATTERY_INSTALLED= option_dict["BATTERY_INSTALLED"]
-DEBUG= option_dict["DEBUG"]
+MQTT_HOST = get_option("MQTT_HOST")  # Note - if issues connecting, use FQDN for broker IP instead of hassio.local
+MQTT_PORT = get_option("MQTT_PORT", 1883)
+MQTT_TOPIC = get_option("MQTT_TOPIC", "envoy/json")  # Note - if you change this topic, you'll need to also change the value_templates in configuration.yaml
+MQTT_USER = get_option("MQTT_USER")     # As described in the Documentation for the HA Mosquito broker add-on, the MQTT user/password are the user setup for mqtt
+MQTT_PASSWORD = get_option("MQTT_PASSWORD")    # If you use an external broker, use those details instead
+ENVOY_HOST = get_option("ENVOY_HOST", "envoy.local")  # ** Enter envoy-s IP. Note - use FQDN and not envoy.local if issues connecting
+ENVOY_USE_HTTPS= get_bool_option("ENVOY_USE_HTTPS")
+ENVOY_USER= get_option("ENVOY_USER")
+ENVOY_USER_PASS= get_option("ENVOY_USER_PASS")
+USE_FREEDS= get_bool_option("USE_FREEDS")
+BATTERY_INSTALLED= get_bool_option("BATTERY_INSTALLED")
+DEBUG= get_bool_option("DEBUG")
 MQTT_TOPIC_FREEDS = "Inverter/GridWatts"
 ####  End Settings - no changes after this line
 
