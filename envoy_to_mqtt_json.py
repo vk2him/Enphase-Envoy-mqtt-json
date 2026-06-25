@@ -26,7 +26,7 @@ import xml.etree.ElementTree as ET
 #disable warnings of self signed certificate https
 urllib3.disable_warnings()
 import paho.mqtt.client as mqtt
-client = mqtt.Client()
+#client = mqtt.Client()
 pp = pprint.PrettyPrinter()
 import xml.etree.ElementTree as ET
 import hashlib
@@ -231,9 +231,9 @@ client.on_disconnect = on_disconnect
 #client.on_log       = on_log
 client.username_pw_set(MQTT_USER, MQTT_PASSWORD)
 if DEBUG: print(dt_string, 'Will wait for mqtt connect')
-wait: client.connect(MQTT_HOST,int(MQTT_PORT), 30)
+client.connect(MQTT_HOST,int(MQTT_PORT), 30)
 if DEBUG: print(dt_string, 'Finished waiting for mqtt connect')
-wait: client.loop_start()
+client.loop_start()
 
 ## Generation of Envoy password based on serial number, copy from https://github.com/sarnau/EnphaseEnergy/passwordCalc.py
 ## Credits to Markus Fritze https://github.com/sarnau/EnphaseEnergy
@@ -399,7 +399,7 @@ def scrape_stream_meters():
 def scrape_stream():
     serial = serialNumber.encode("utf-8")
     ENVOY_PASSWORD=emupwGetMobilePasswd(serial, userName)
-    print(dt_string, 'Envoy password is', ENVOY_PASSWORD)
+    print(dt_string, 'Envoy 26 June password is', ENVOY_PASSWORD)
     if DEBUG: print(dt_string, 'Username:',userName.decode())
     auth = HTTPDigestAuth(userName.decode(), ENVOY_PASSWORD)
     if DEBUG: print(dt_string, 'auth:',auth)
