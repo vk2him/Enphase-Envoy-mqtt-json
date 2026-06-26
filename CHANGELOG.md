@@ -1,4 +1,5 @@
-v1.0.23 27th June 2026 - Changes to restore stream when used on Raspberry Pi on using Home Assistant v 2026.6.4 and Operating system version 6.18.33-haos-raspi
+v1.0.24 27th June 2026 - Changes to restore stream when used on Raspberry Pi on using Home Assistant v 2026.6.4 and Operating system version 6.18.33-haos-raspi. 
+Also adds option to build as a standalone container without HomeAssistant
 
 v1.0.22 10th January 2026 - Change Boolean settings in options.json for use in standalone
 
