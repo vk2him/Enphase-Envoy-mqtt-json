@@ -4,6 +4,8 @@ A Python script that takes a real time json stream from an Enphase Envoy and pub
 
 Now works with 7.x.x and 8.x.x firmware - thanks to @helderd
 
+**Note - June 2026 - Changes to Home Assistant OS introduced in Version core-2026.6.4 seem to have broken the Stream for Raspberry Pi users. Code now modified to restore RPi functionality**
+
 **Note - December 2025 - FW D8.3.5286 (da7504) and probably onwards removed the non-SSL, port 80 & http://.. endpoints from local Envoys but https:// ones are (still) available. Added the ENVOY_USE_HTTPS toggle switch in the configuration to address this and make the add-on use https:// based requests. with thanks to https://github.com/joergbattermann**
 
 **Note - September 2024 - added ability to utilise Battery data on V7 or V8 firmware (v5 not supported) - to enable, turn on the toggle switch BATTERY_INSTALLED in configuration, then setup templates per Battery examples below - this is a breaking change to your templates if you enable the battery Option- thanks to @Underlyingglitch**

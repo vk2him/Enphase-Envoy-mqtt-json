@@ -1,3 +1,5 @@
+v1.0.23 27th June 2026 - Changes to restore stream when used on Raspberry Pi on using Home Assistant v 2026.6.4 and Operating system version 6.18.33-haos-raspi
+
 v1.0.22 10th January 2026 - Change Boolean settings in options.json for use in standalone
 
 v1.0.21 24th December 2025 - Add option to fully use https endpoints to cater for new firmware D8.3.5286 (da7504) and later thanks to https://github.com/joergbattermann
