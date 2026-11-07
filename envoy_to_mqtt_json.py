@@ -31,6 +31,7 @@ pp = pprint.PrettyPrinter()
 import xml.etree.ElementTree as ET
 import hashlib
 import os
+session = requests.Session()
 
 
 # Settings come from environment variables, then data/options.json (optional).
@@ -102,7 +103,7 @@ if ENVOY_USE_HTTPS:
 else:
     url_info ='http://%s/info' % ENVOY_HOST
 
-response_info = requests.get(url_info, verify=False)
+response_info = session.get(url_info, verify=False)
 if response_info.status_code != 200:
     print(dt_string,'Failed connect to Envoy to get info got ', response_info, 'Verify URL', url_info )
 else:
@@ -310,12 +311,12 @@ def scrape_stream_production():
             else:
                 url = 'http://%s/production.json' % ENVOY_HOST
             headers = {"Authorization": "Bearer " + ENVOY_TOKEN}
-            stream = requests.get(url, timeout=5, verify=False, headers=headers)
+            stream = session.get(url, timeout=5, verify=False, headers=headers)
             if stream.status_code == 401:
                 print(dt_string,'Failed to autenticate', stream, ' generating new token')
                 ENVOY_TOKEN=token_gen(None)
                 headers = {"Authorization": "Bearer " + ENVOY_TOKEN}
-                stream = requests.get(url, timeout=5, verify=False, headers=headers)
+                stream = session.get(url, timeout=5, verify=False, headers=headers)
             elif stream.status_code != 200:
                 print(dt_string,'Failed connect to Envoy got ', stream)
             else:
@@ -340,19 +341,19 @@ def scrape_stream_livedata():
         try:
             url = 'https://%s/ivp/livedata/status' % ENVOY_HOST 
             headers = {"Authorization": "Bearer " + ENVOY_TOKEN}
-            stream = requests.get(url, timeout=5, verify=False, headers=headers)
+            stream = session.get(url, timeout=5, verify=False, headers=headers)
             if stream.status_code == 401:
                 print(dt_string,'Failed to autenticate', stream, ' generating new token')
                 ENVOY_TOKEN=token_gen(None)
                 headers = {"Authorization": "Bearer " + ENVOY_TOKEN}
-                stream = requests.get(url, timeout=5, verify=False, headers=headers)
+                stream = session.get(url, timeout=5, verify=False, headers=headers)
             elif stream.status_code != 200:
                 print(dt_string,'Failed connect to Envoy got ', stream)
             elif is_json_valid(stream.content):
                 if stream.json()['connection']['sc_stream'] == 'disabled':
                     url_activate='https://%s/ivp/livedata/stream' % ENVOY_HOST
                     print(dt_string, 'Stream is not active, trying to enable')
-                    response_activate=requests.post(url_activate, verify=False, headers=headers, json=activate_json)
+                    response_activate=session.post(url_activate, verify=False, headers=headers, json=activate_json)
                     if is_json_valid(response_activate.content):
                         if response_activate.json()['sc_stream']=='enabled':
                             stream = requests.get(url, stream=True, timeout=5, verify=False, headers=headers)
@@ -384,14 +385,14 @@ def scrape_stream_meters():
             if DEBUG: print(dt_string, 'Url:', url)
             headers = {"Authorization": "Bearer " + ENVOY_TOKEN}
             if DEBUG: print(dt_string, 'headers:', headers)
-            stream = requests.get(url, timeout=5, verify=False, headers=headers)
+            stream = session.get(url, timeout=5, verify=False, headers=headers)
             if DEBUG: print(dt_string, 'stream:', stream.content)
             if stream.status_code == 401:
                 print(dt_string,'Failed to autenticate', stream, ' generating new token')
                 ENVOY_TOKEN=token_gen(None)
                 headers = {"Authorization": "Bearer " + ENVOY_TOKEN}
                 if DEBUG: print(dt_string, 'headers after 401:', headers)
-                stream = requests.get(url, timeout=5, verify=False, headers=headers)
+                stream = session.get(url, timeout=5, verify=False, headers=headers)
                 if DEBUG: print(dt_string, 'stream after 401:', stream.content)
             elif stream.status_code != 200:
                 print(dt_string,'Failed connect to Envoy got ', stream)
@@ -426,7 +427,8 @@ def scrape_stream():
             else:
                 url = 'http://%s/stream/meter' % ENVOY_HOST
             if DEBUG: print(dt_string, 'Url:', url)
-            stream = requests.get(url, auth=auth, stream=True, timeout=5)
+            # Long-lived stream, reconnects are rare, so a shared session gives almost no benefit here. It is used anyway for consistency.
+            stream = session.get(url, auth=auth, stream=True, timeout=5)
 #            if DEBUG: print(dt_string, 'stream:', stream.content)
             for line in stream.iter_lines():
 #                if DEBUG: print(dt_string, 'Line:', line)
