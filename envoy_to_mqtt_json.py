@@ -356,7 +356,6 @@ def scrape_stream_livedata():
                     response_activate=session.post(url_activate, verify=False, headers=headers, json=activate_json)
                     if is_json_valid(response_activate.content):
                         if response_activate.json()['sc_stream']=='enabled':
-                            stream = requests.get(url, stream=True, timeout=5, verify=False, headers=headers)
                             print(dt_string, 'Success, stream is active now')
                         else:
                             print(dt_string, 'Failed to activate stream ', response_activate.content)
