@@ -4,7 +4,7 @@ A Python script that takes a real time json stream from an Enphase Envoy and pub
 
 Now works with 7.x.x and 8.x.x firmware - thanks to @helderd
 
-**Note - November 2026 - All requests to the Envoy now share one HTTP session, so the HTTPS connection is kept alive instead of doing a full TLS handshake on every poll. This noticeably reduces the load on the Envoy. Added the POLL_INTERVAL and RETRY_DELAY options to set the wait after successful and failed requests (see Configuration via environment variables below); the defaults keep the previous behaviour.**
+**Note - November 2026 - All requests to the Envoy now share one HTTP session, so the HTTPS connection is kept alive instead of doing a full TLS handshake on every poll. This noticeably reduces the load on the Envoy. Added the POLL_INTERVAL and RETRY_DELAY options to set the wait after successful and failed requests (see Configuration via environment variables below); the defaults keep the previous behaviour. With thanks to @justinh998**
 
 **Note - June 2026 - Changes to Home Assistant OS introduced in Version core-2026.6.4 seem to have broken the Stream for Raspberry Pi users. Code now modified to restore RPi functionality**
 

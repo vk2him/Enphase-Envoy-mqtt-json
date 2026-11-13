@@ -1,3 +1,5 @@
+v1.0.25 13th November 2026 - Implemented HTTP connection pooling via requests.Session() to keep connections alive and significantly reduce processing load on the Envoy. With thanks to @justinh998
+
 v1.0.24 27th June 2026 - Changes to restore stream when used on Raspberry Pi on using Home Assistant v 2026.6.4 and Operating system version 6.18.33-haos-raspi. 
 Also adds option to build as a standalone container without HomeAssistant
 
