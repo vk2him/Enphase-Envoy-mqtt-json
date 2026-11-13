@@ -360,8 +360,8 @@ runs entirely from the environment.
 | `USE_FREEDS` | `false` | Publish a FREEDS grid-watts topic |
 | `BATTERY_INSTALLED` | `false` | Use the battery live-data endpoint |
 | `DEBUG` | `false` | Verbose debug logging |
-| `POLL_INTERVAL` | `0.6` (`1` for `production.json`) | Seconds to wait after a successful poll (FW7/8 only, not used by the FW5 stream) |
-| `RETRY_DELAY` | `0` | Seconds to wait after a failed request before retrying (`0` retries immediately) |
+| `POLL_INTERVAL` | `0.6` (`1.0` for `production.json`) | Seconds to wait after a successful poll (FW7/8 only). Leave unset to use default timings. |
+| `RETRY_DELAY` | `0` | Seconds to wait after a failed request before retrying. `0` retries immediately. |
 
 Booleans accept `true` or `false`. Numeric values use a dot as decimal
 separator (e.g. `0.6`); invalid values fall back to the default. The path to
