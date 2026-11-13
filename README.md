@@ -4,6 +4,8 @@ A Python script that takes a real time json stream from an Enphase Envoy and pub
 
 Now works with 7.x.x and 8.x.x firmware - thanks to @helderd
 
+**Note - November 2026 - All requests to the Envoy now share one HTTP session, so the HTTPS connection is kept alive instead of doing a full TLS handshake on every poll. This noticeably reduces the load on the Envoy. Added the POLL_INTERVAL and RETRY_DELAY options to set the wait after successful and failed requests (see Configuration via environment variables below); the defaults keep the previous behaviour.**
+
 **Note - June 2026 - Changes to Home Assistant OS introduced in Version core-2026.6.4 seem to have broken the Stream for Raspberry Pi users. Code now modified to restore RPi functionality**
 
 **Note - June 2026 - Adding option to Install as a Standalone Container - refer to Method 3 below. Thanks to @bo0tzz**
@@ -357,9 +359,12 @@ runs entirely from the environment.
 | `USE_FREEDS` | `false` | Publish a FREEDS grid-watts topic |
 | `BATTERY_INSTALLED` | `false` | Use the battery live-data endpoint |
 | `DEBUG` | `false` | Verbose debug logging |
+| `POLL_INTERVAL` | `0.6` (`1` for `production.json`) | Seconds to wait after a successful poll (FW7/8 only, not used by the FW5 stream) |
+| `RETRY_DELAY` | `0` | Seconds to wait after a failed request before retrying (`0` retries immediately) |
 
-Booleans accept `true` or `false`. The path to the options file can be
-overridden with `OPTIONS_FILE`.
+Booleans accept `true` or `false`. Numeric values use a dot as decimal
+separator (e.g. `0.6`); invalid values fall back to the default. The path to
+the options file can be overridden with `OPTIONS_FILE`.
 
 __Note:__
 
@@ -779,4 +784,3 @@ The resulting mqtt topic should look like this example:
 If this project helps you, you can give me a cup of coffee<br/>
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/vk2him)
 <br/><br/>
-

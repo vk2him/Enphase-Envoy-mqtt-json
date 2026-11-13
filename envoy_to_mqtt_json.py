@@ -31,6 +31,7 @@ pp = pprint.PrettyPrinter()
 import xml.etree.ElementTree as ET
 import hashlib
 import os
+session = requests.Session()
 
 
 # Settings come from environment variables, then data/options.json (optional).
@@ -52,6 +53,13 @@ def get_bool_option(key, default=False):
         return value
     return str(value).strip().lower() == "true"
 
+def get_float_option(key, default):
+    value = get_option(key, default)
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        print(f'Invalid value for {key}: using default {default}')
+        return float(default)
 ##
 
 now = datetime.now()
@@ -77,6 +85,7 @@ USE_FREEDS= get_bool_option("USE_FREEDS")
 BATTERY_INSTALLED= get_bool_option("BATTERY_INSTALLED")
 DEBUG= get_bool_option("DEBUG")
 MQTT_TOPIC_FREEDS = "Inverter/GridWatts"
+RETRY_DELAY = get_float_option("RETRY_DELAY", 0)
 ####  End Settings - no changes after this line
 
 #Password generator
@@ -102,7 +111,7 @@ if ENVOY_USE_HTTPS:
 else:
     url_info ='http://%s/info' % ENVOY_HOST
 
-response_info = requests.get(url_info, verify=False)
+response_info = session.get(url_info, verify=False)
 if response_info.status_code != 200:
     print(dt_string,'Failed connect to Envoy to get info got ', response_info, 'Verify URL', url_info )
 else:
@@ -301,21 +310,23 @@ def emupwGetMobilePasswd(serialNumber,userName,realm=None):
     return password
 
 def scrape_stream_production():
+    poll_interval = get_float_option("POLL_INTERVAL", 1)
     global ENVOY_TOKEN
     ENVOY_TOKEN=token_gen(ENVOY_TOKEN)
     while True:
+        delay = RETRY_DELAY  # default for errors, set to poll_interval on success
         try:
             if ENVOY_USE_HTTPS:
                 url = 'https://%s/production.json' % ENVOY_HOST
             else:
                 url = 'http://%s/production.json' % ENVOY_HOST
             headers = {"Authorization": "Bearer " + ENVOY_TOKEN}
-            stream = requests.get(url, timeout=5, verify=False, headers=headers)
+            stream = session.get(url, timeout=5, verify=False, headers=headers)
             if stream.status_code == 401:
                 print(dt_string,'Failed to autenticate', stream, ' generating new token')
                 ENVOY_TOKEN=token_gen(None)
                 headers = {"Authorization": "Bearer " + ENVOY_TOKEN}
-                stream = requests.get(url, timeout=5, verify=False, headers=headers)
+                stream = session.get(url, timeout=5, verify=False, headers=headers)
             elif stream.status_code != 200:
                 print(dt_string,'Failed connect to Envoy got ', stream)
             else:
@@ -326,37 +337,40 @@ def scrape_stream_production():
                     if USE_FREEDS: 
                         json_string_freeds = json.dumps(round(stream.json()['consumption'][0]['wNow']))
                         client.publish(topic= MQTT_TOPIC_FREEDS , payload= json_string_freeds, qos=0 )
-                    time.sleep(1)
+                    delay = poll_interval
                 else:
                     print(dt_string, 'Invalid Json Response:', stream.content)
         except requests.exceptions.RequestException as e:
             print(dt_string, ' Exception fetching stream data: %s' % e)
+        time.sleep(delay)
 
 def scrape_stream_livedata():
+    poll_interval = get_float_option("POLL_INTERVAL", 0.6)
     global ENVOY_TOKEN
     ENVOY_TOKEN=token_gen(ENVOY_TOKEN)
     activate_json={"enable": 1}
     while True:
+        delay = RETRY_DELAY  # default for errors, set to poll_interval on success
         try:
             url = 'https://%s/ivp/livedata/status' % ENVOY_HOST 
             headers = {"Authorization": "Bearer " + ENVOY_TOKEN}
-            stream = requests.get(url, timeout=5, verify=False, headers=headers)
+            stream = session.get(url, timeout=5, verify=False, headers=headers)
             if stream.status_code == 401:
                 print(dt_string,'Failed to autenticate', stream, ' generating new token')
                 ENVOY_TOKEN=token_gen(None)
                 headers = {"Authorization": "Bearer " + ENVOY_TOKEN}
-                stream = requests.get(url, timeout=5, verify=False, headers=headers)
+                stream = session.get(url, timeout=5, verify=False, headers=headers)
             elif stream.status_code != 200:
                 print(dt_string,'Failed connect to Envoy got ', stream)
             elif is_json_valid(stream.content):
                 if stream.json()['connection']['sc_stream'] == 'disabled':
                     url_activate='https://%s/ivp/livedata/stream' % ENVOY_HOST
                     print(dt_string, 'Stream is not active, trying to enable')
-                    response_activate=requests.post(url_activate, verify=False, headers=headers, json=activate_json)
+                    response_activate=session.post(url_activate, verify=False, headers=headers, json=activate_json)
                     if is_json_valid(response_activate.content):
                         if response_activate.json()['sc_stream']=='enabled':
-                            stream = requests.get(url, stream=True, timeout=5, verify=False, headers=headers)
                             print(dt_string, 'Success, stream is active now')
+                            delay = poll_interval  # not an error, give the Envoy a moment for fresh data
                         else:
                             print(dt_string, 'Failed to activate stream ', response_activate.content)
                     else:
@@ -368,30 +382,33 @@ def scrape_stream_livedata():
                     if USE_FREEDS: 
                         json_string_freeds = json.dumps(round(stream.json()["meters"]["grid"]["agg_p_mw"]*0.001))
                         client.publish(topic= MQTT_TOPIC_FREEDS , payload= json_string_freeds, qos=0 )
-                    time.sleep(0.6)
+                    delay = poll_interval
             elif not is_json_valid(stream.content):
                 print(dt_string, 'Invalid Json Response:', stream.content)
 
         except requests.exceptions.RequestException as e:
             print(dt_string, ' Exception fetching stream data: %s' % e)
+        time.sleep(delay)
 
 def scrape_stream_meters():
+    poll_interval = get_float_option("POLL_INTERVAL", 0.6)
     global ENVOY_TOKEN
     ENVOY_TOKEN=token_gen(ENVOY_TOKEN)
     while True:
+        delay = RETRY_DELAY  # default for errors, set to poll_interval on success
         try:
             url = 'https://%s/ivp/meters/readings' % ENVOY_HOST
             if DEBUG: print(dt_string, 'Url:', url)
             headers = {"Authorization": "Bearer " + ENVOY_TOKEN}
             if DEBUG: print(dt_string, 'headers:', headers)
-            stream = requests.get(url, timeout=5, verify=False, headers=headers)
+            stream = session.get(url, timeout=5, verify=False, headers=headers)
             if DEBUG: print(dt_string, 'stream:', stream.content)
             if stream.status_code == 401:
                 print(dt_string,'Failed to autenticate', stream, ' generating new token')
                 ENVOY_TOKEN=token_gen(None)
                 headers = {"Authorization": "Bearer " + ENVOY_TOKEN}
                 if DEBUG: print(dt_string, 'headers after 401:', headers)
-                stream = requests.get(url, timeout=5, verify=False, headers=headers)
+                stream = session.get(url, timeout=5, verify=False, headers=headers)
                 if DEBUG: print(dt_string, 'stream after 401:', stream.content)
             elif stream.status_code != 200:
                 print(dt_string,'Failed connect to Envoy got ', stream)
@@ -405,11 +422,12 @@ def scrape_stream_meters():
                         json_string_freeds = json.dumps(round(stream.json()[1]["activePower"]))
                         if DEBUG: print(dt_string, 'Json freeds:', stream.json()[1]["activePower"])
                         client.publish(topic= MQTT_TOPIC_FREEDS , payload= json_string_freeds, qos=0 )
-                    time.sleep(0.6)
+                    delay = poll_interval
                 else:
                     print(dt_string, 'Invalid Json Response:', stream.content)
         except requests.exceptions.RequestException as e:
             print(dt_string, ' Exception fetching stream data: %s' % e)
+        time.sleep(delay)
 
 def scrape_stream():
     serial = serialNumber.encode("utf-8")
@@ -426,7 +444,8 @@ def scrape_stream():
             else:
                 url = 'http://%s/stream/meter' % ENVOY_HOST
             if DEBUG: print(dt_string, 'Url:', url)
-            stream = requests.get(url, auth=auth, stream=True, timeout=5)
+            # Long-lived stream, reconnects are rare, so a shared session gives almost no benefit here. It is used anyway for consistency.
+            stream = session.get(url, auth=auth, stream=True, timeout=5)
 #            if DEBUG: print(dt_string, 'stream:', stream.content)
             for line in stream.iter_lines():
 #                if DEBUG: print(dt_string, 'Line:', line)
@@ -438,6 +457,7 @@ def scrape_stream():
                     client.publish(topic= MQTT_TOPIC , payload= json_string, qos=0 )
         except requests.exceptions.RequestException as e:
             print(dt_string, ' Exception fetching stream data: %s' % e)
+            time.sleep(RETRY_DELAY)
 
 def main():
     #Use url https://envoy.local/production.json
